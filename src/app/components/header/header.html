@@ -1,37 +1,8 @@
-<header class="bg-sky-50 border-b border-sky-100 px-6 py-4 flex items-center justify-between shadow-sm">
-  <!-- Logo + Title -->
-  <div class="flex items-center gap-2">
-    
-    <span class="text-xl font-bold text-sky-600">TimeTracker</span>
-  </div>
-
-  <!-- Navigation -->
-  <nav class="md:flex items-center space-x-6 text-sm">
-    <a
-      routerLink="/"
-      routerLinkActive="text-sky-700 font-semibold"
-      class="text-gray-700 hover:text-sky-600 transition"
-    >
-      Home
-    </a>
-    <a
-      routerLink="/dashboard"
-      routerLinkActive="text-sky-700 font-semibold"
-      class="text-gray-700 hover:text-sky-600 transition"
-    >
-      Dashboard
-    </a>
-    <a
-      routerLink="/login"
-      routerLinkActive="text-sky-700 font-semibold"
-      class="text-gray-700 hover:text-sky-600 transition"
-    >
-      Login
-    </a>
+<header class="bg-black bg-opacity-90 font-clash text-cutomWhite px-8 py-4 flex justify-between items-center shadow-lg">
+  <h1 class="text-cutomWhite text-4xl drop-shadow-[0_0_10px_#7c75a1]">TimeTracker</h1>
+  <nav class="flex space-x-6 text-sm font-medium">
+    <a routerLink="/" class="hover:text-rose-200 cursor-pointer">Home</a>
+    <a routerLink="/dashboard" class="hover:text-rose-200 cursor-pointer">Dashboard</a>
+    <a routerLink="/login" class="hover:text-rose-200 cursor-pointer">Login</a>
   </nav>
-
-  <!-- User Placeholder -->
-  <div class="hidden md:block text-sm text-gray-500 italic">
-    Not logged in
-  </div>
 </header>
