@@ -4,7 +4,7 @@
 
 body {
     @apply bg-gradient-to-tr from-blue-300 via-violet-200 to-rose-200;
-    @apply font-sans;
+    @apply font-clash;
 }
 
 ::-webkit-scrollbar {
@@ -13,4 +13,8 @@ body {
 body {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+html,
+body {
+  @apply m-0 p-0 box-border;
 }
