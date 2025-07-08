@@ -1,62 +1,106 @@
-import { CommonModule, NgFor, NgIf } from '@angular/common';
-import { Component } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDatepickerModule, DateRange } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
-
-export interface TimesheetEntry {
-  id: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  breakDuration: string;
-  status: 'editat' | 'trimis';
-}
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { FormsModule } from '@angular/forms';
+import { TimesheetEntry, TimeSheetService } from '../../services/timesheet.service';
 
 @Component({
   selector: 'app-timesheet-table',
+  standalone: true,
   imports: [
-    CommonModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule],
+    CommonModule, FormsModule,
+    MatTableModule, MatButtonModule,
+    MatIconModule, MatFormFieldModule,
+    MatInputModule, MatDatepickerModule, MatNativeDateModule
+  ],
   templateUrl: './timesheet-table.html',
   styleUrl: './timesheet-table.css'
 })
-export class TimesheetTable {
+export class TimesheetTable implements OnInit {
+  private timeSheetService = inject(TimeSheetService);
+
+  entries = this.timeSheetService.getEntries();
+
+  selectedRange = signal<DateRange<Date>>(new DateRange<Date>(null, null));
+
   columns: string[] = ['date', 'startTime', 'endTime', 'breakDuration', 'workedTime', 'status', 'actions'];
 
-  // dummy data
-  timesheetEntries: TimesheetEntry[] = [
-    {
-      id: '1',
-      date: '2025-06-27',
-      startTime: '08:00',
-      endTime: '16:00',
-      breakDuration: '00:30',
-      status: 'trimis'
-    }
-  ];
+  ngOnInit(): void {
+    this.timeSheetService.loadData().then(() => {
+      const today = new Date();
+      const day = today.getDay();
+      const diffToMonday = today.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(today.setDate(diffToMonday));
+      const sunday = new Date(new Date(monday).setDate(monday.getDate() + 6));
+      this.selectedRange.set(new DateRange(monday, sunday));
+    });
+  }
+
+  filteredEntries = computed(() => {
+    const range = this.selectedRange();
+    if (!range.start || !range.end) return [];
+
+    const dateList = this.getDatesInRange(range.start, range.end);
+    console.log('Selected Range:', range.start, 'to', range.end);
+    console.log('Date List:', dateList);
+
+    return dateList.map(date => {
+      const entry = this.entries().find(e => e.date === date);
+      if (entry) return entry;
+
+      return {
+        id: '',
+        date,
+        startTime: '',
+        endTime: '',
+        breakDuration: '',
+        status: '',
+      };
+    });
+  });
+
 
   getWorkedTime(entry: TimesheetEntry): string {
-    const [startHour, startMin] = entry.startTime.split(':').map(Number);
-    const [endHour, endMin] = entry.endTime.split(':').map(Number);
-    const [breakHour, breakMin] = entry.breakDuration.split(':').map(Number);
+    const [sh, sm] = entry.startTime.split(':').map(Number);
+    const [eh, em] = entry.endTime.split(':').map(Number);
+    const [bh, bm] = entry.breakDuration.split(':').map(Number);
 
-    const totalMinutes = (endHour * 60 + endMin) - (startHour * 60 + startMin) - (breakHour * 60 + breakMin);
-    const h = Math.floor(totalMinutes / 60).toString().padStart(2, '0');
-    const m = (totalMinutes % 60).toString().padStart(2, '0');
-
+    const total = (eh * 60 + em) - (sh * 60 + sm) - (bh * 60 + bm);
+    const h = Math.floor(total / 60).toString().padStart(2, '0');
+    const m = (total % 60).toString().padStart(2, '0');
     return `${h}:${m}`;
   }
 
+  onStartDateChange(date: Date | null) {
+    this.selectedRange.set(new DateRange(date, this.selectedRange().end));
+  }
+
+  onEndDateChange(date: Date | null) {
+    this.selectedRange.set(new DateRange(this.selectedRange().start, date));
+  }
+
   onEdit(entry: TimesheetEntry) {
-    // TODO: Deschide modal editare
     console.log('Edit', entry);
   }
 
   onDelete(id: string) {
-    // TODO: Confirmare + DELETE
     console.log('Delete', id);
   }
+
+  getDatesInRange(start: Date, end: Date): string[] {
+    const dates: string[] = [];
+    const current = new Date(start);
+    while (current <= end) {
+      dates.push(current.toISOString().split('T')[0]);
+      current.setDate(current.getDate() + 1);
+    }
+    return dates;
+  }
+
 }
