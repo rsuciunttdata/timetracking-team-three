@@ -57,7 +57,7 @@ export class TimesheetTable {
   }
 
   onEdit(entry: TimesheetEntry) {
-  
+   console.log('Editing entry:', entry); 
      this.dialog.open(AddEditModal, {
       data: entry,
       width: '600px',
