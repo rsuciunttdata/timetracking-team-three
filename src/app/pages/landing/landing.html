@@ -1,0 +1,50 @@
+<!-- Section 1: Hero -->
+<section class="h-screen flex items-center justify-center text-center  bg-">
+    <div class="w-full max-w-2xl p-8 rounded-md">
+        <div [@fadeIn]>
+            <h1 class="text-6xl md:text-7xl font-clash font-bold text-white drop-shadow-[0_0_40px_#000000]">
+                Welcome to TimeTracker
+            </h1>
+
+            <p class="mt-6 text-lg md:text-xl text-white font-semibold">
+                Track your work, manage time smartly, and stay ahead.
+            </p>
+        </div>
+
+        <div class="mt-10 flex justify-center space-x-6">
+            <a routerLink="/login"
+                class="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition shadow-md hover:scale-105 transform transition duration-300 ease-in-out">
+                Login
+            </a>
+            <a routerLink="/dashboard"
+                class="bg-white text-black px-6 py-3 rounded-lg hover:bg-gray-100 transition shadow-md hover:scale-105 transform transition duration-300 ease-in-out">
+                Dashboard
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Section 2: How It Works -->
+<section class="text-white flex items-center justify-center px-6">
+    <div class="max-w-4xl text-center ">
+        <h2 class="text-4xl font-clash mb-10 drop-shadow-[0_0_10px_#000000]">How TimeTracker Works</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div
+                class="bg-black bg-opacity-20 p-6 rounded-lg shadow-md hover:scale-105 transform transition duration-300 ease-in-out">
+                <h3 class="text-xl font-semibold mb-2">1. Log In</h3>
+                <p class="text-sm text-gray-200">Employees securely log in to their account using a simple interface.
+                </p>
+            </div>
+            <div
+                class="bg-black bg-opacity-20 p-6 rounded-lg shadow-md hover:scale-105 transform transition duration-300 ease-in-out">
+                <h3 class="text-xl font-semibold mb-2">2. Track Work Time</h3>
+                <p class="text-sm text-gray-200">Start, pause, and stop work sessions — all tracked in real-time.</p>
+            </div>
+            <div
+                class="bg-black bg-opacity-20 p-6 rounded-lg shadow-md hover:scale-105 transform transition duration-300 ease-in-out">
+                <h3 class="text-xl font-semibold mb-2">3. View Timesheets</h3>
+                <p class="text-sm text-gray-200">Access daily, weekly, or monthly records — automatically generated.</p>
+            </div>
+        </div>
+    </div>
+</section>
