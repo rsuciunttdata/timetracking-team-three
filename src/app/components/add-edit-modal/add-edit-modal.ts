@@ -28,21 +28,27 @@ export class AddEditModal {
   }
 
  async onSubmit() {
-    if (this.form.invalid) {
+  if (this.form.invalid) {
     this.form.markAllAsTouched();
     return;
   }
 
+  const formData = this.form.value;
+
   try {
-    await this.timesheetService.addEntry(this.form.value);
+    if (this.isEdit && this.data?.id != null) {
+   
+      await this.timesheetService.updateEntry(this.data.id, formData);
+    } else {
+    
+      await this.timesheetService.addEntry(formData);
+    }
+
     this.dialogRef.close('saved'); 
   } catch (err) {
     console.error('Eroare la salvare:', err);
-    
   }
-    console.log('Form submitted:', this.form.value);
-    this.dialogRef.close(this.form.value);
-  }
+}
 
 
 }
