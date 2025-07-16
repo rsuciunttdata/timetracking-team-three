@@ -17,7 +17,7 @@ import { TimesheetEntry, TimeSheetService } from '../../services/timesheet.servi
     CommonModule, FormsModule,
     MatTableModule, MatButtonModule,
     MatIconModule, MatFormFieldModule,
-    MatInputModule, MatDatepickerModule, MatNativeDateModule
+    MatInputModule, MatDatepickerModule, MatNativeDateModule,
   ],
   templateUrl: './timesheet-table.html',
   styleUrl: './timesheet-table.css'
@@ -39,6 +39,7 @@ export class TimesheetTable implements OnInit {
       const monday = new Date(today.setDate(diffToMonday));
       const sunday = new Date(new Date(monday).setDate(monday.getDate() + 6));
       this.selectedRange.set(new DateRange(monday, sunday));
+
     });
   }
 
@@ -47,16 +48,23 @@ export class TimesheetTable implements OnInit {
     if (!range.start || !range.end) return [];
 
     const dateList = this.getDatesInRange(range.start, range.end);
+
     console.log('Selected Range:', range.start, 'to', range.end);
     console.log('Date List:', dateList);
 
-    return dateList.map(date => {
-      const entry = this.entries().find(e => e.date === date);
+    return dateList.map(dateStr => {
+      const normalizedDateStr = new Date(dateStr).toISOString().split('T')[0];
+
+      const entry = this.entries().find(e => {
+        const entryDateStr = new Date(e.date).toISOString().split('T')[0];
+        return entryDateStr === normalizedDateStr;
+      });
+
       if (entry) return entry;
 
       return {
         id: '',
-        date,
+        date: normalizedDateStr,
         startTime: '',
         endTime: '',
         breakDuration: '',
@@ -95,12 +103,16 @@ export class TimesheetTable implements OnInit {
 
   getDatesInRange(start: Date, end: Date): string[] {
     const dates: string[] = [];
-    const current = new Date(start);
-    while (current <= end) {
+    const current = new Date(start.getFullYear(), start.getMonth(), start.getDate()); // clone, clear time
+    const final = new Date(end.getFullYear(), end.getMonth(), end.getDate());         // clear time
+
+    while (current <= final) {
       dates.push(current.toISOString().split('T')[0]);
       current.setDate(current.getDate() + 1);
     }
+
     return dates;
   }
+
 
 }
