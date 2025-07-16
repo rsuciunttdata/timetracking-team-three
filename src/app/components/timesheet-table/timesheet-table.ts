@@ -7,6 +7,9 @@ import { MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { AddEditModal } from '../add-edit-modal/add-edit-modal';
 import { FormsModule } from '@angular/forms';
 import { TimesheetEntry, TimeSheetService } from '../../services/timesheet.service';
 
@@ -31,7 +34,19 @@ export class TimesheetTable implements OnInit {
 
   columns: string[] = ['date', 'startTime', 'endTime', 'breakDuration', 'workedTime', 'status', 'actions'];
 
-  ngOnInit(): void {
+
+  timesheetEntries: TimesheetEntry[] = [];
+  constructor(private dialog: MatDialog, private timesheetService: TimeSheetService,) {
+  }
+
+
+  async ngOnInit() {
+    console.log('Calling loadData...');
+    await this.timesheetService.loadData();
+
+    this.timesheetEntries = this.timesheetService.getEntries()();
+    console.log('Loaded timesheetEntries:', this.timesheetEntries);
+
     this.timeSheetService.loadData().then(() => {
       const today = new Date();
       const day = today.getDay();
@@ -94,7 +109,30 @@ export class TimesheetTable implements OnInit {
   }
 
   onEdit(entry: TimesheetEntry) {
-    console.log('Edit', entry);
+    console.log('Editing entry:', entry);
+    this.dialog.open(AddEditModal, {
+      data: entry,
+      width: '600px',
+      panelClass: 'custom-dialog-container'
+    });
+  }
+
+  onAdd() {
+    const dialogRef = this.dialog.open(AddEditModal, {
+      data: null,
+      width: '600px',
+      panelClass: 'custom-dialog-container'
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      console.log('Dialog closed with result:', result); // ✅ log
+      if (result === 'saved') {
+        console.log('Reloading timesheet data...');
+        await this.timesheetService.loadData();
+        this.timesheetEntries = this.timesheetService.getEntries()(); // ✅ important!
+        console.log('Updated timesheet entries:', this.timesheetEntries);
+      }
+    });
   }
 
   onDelete(id: string) {
