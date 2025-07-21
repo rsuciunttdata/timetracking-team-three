@@ -1,74 +1,78 @@
-<div class="px-6 py-8 text-cutomWhite font-clash">
+<div class="flex flex-col lg:flex-row gap-10 px-6 py-8 text-cutomWhite font-clash">
 
-  <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6">
-    <h2 class="text-3xl font-semibold drop-shadow-[0_0_8px_#000000] mb-4 lg:mb-0">My Timesheets</h2>
-    <mat-form-field appearance="fill" class="w-full max-w-md">
-      <mat-label>Select Week</mat-label>
-      <mat-date-range-input [rangePicker]="picker">
-        <input matStartDate placeholder="Start" (dateChange)="onStartDateChange($event.value)" />
-        <input matEndDate placeholder="End" (dateChange)="onEndDateChange($event.value)" />
-      </mat-date-range-input>
-      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-date-range-picker #picker></mat-date-range-picker>
-    </mat-form-field>
+  <div class="lg:w-1/4 w-full">
+    <h2 class="text-xl font-semibold mb-4">Select Week</h2>
+
+    <mat-calendar [selected]="selectedDate()" (selectedChange)="onCalendarDateSelect($event)" [dateClass]="dateClass">
+    </mat-calendar>
+
+    <p class="mt-4 text-sm">
+      {{ selectedRange().start?.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) }} –
+      {{ selectedRange().end?.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) }}
+    </p>
+
   </div>
-<div class="px-6 py-10 text-cutomWhite font-clash">
-  <h2 class="text-3xl font-semibold mb-6 drop-shadow-[0_0_8px_#000000]">My Timesheets</h2>
 
-  <button (click)="onAdd()"
-    class="mb-6 px-5 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition shadow-md"
-  >
-    + Add Timesheet 
-  </button>
 
-  <table mat-table [dataSource]="filteredEntries()" class="w-full mat-elevation-z2 bg-white bg-opacity-10 rounded-lg overflow-hidden text-white">
-    <ng-container matColumnDef="date">
-      <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Date</th>
-      <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row.date }}</td>
-    </ng-container>
+  <div class="lg:w-3/4 w-full">
+    <h2 class="text-3xl font-semibold mb-6 drop-shadow-[0_0_8px_#000000]">My Timesheets</h2>
 
-    <ng-container matColumnDef="startTime">
-      <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Start Time</th>
-      <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row.startTime }}</td>
-    </ng-container>
+    <button (click)="onAdd()"
+      class="mb-6 px-5 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition shadow-md">
+      + Add Timesheet
+    </button>
 
-    <ng-container matColumnDef="endTime">
-      <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">End Time</th>
-      <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row.endTime }}</td>
-    </ng-container>
+    <table mat-table [dataSource]="filteredEntries()"
+      class="w-full mat-elevation-z2 bg-white bg-opacity-10 rounded-lg overflow-hidden text-white">
 
-    <ng-container matColumnDef="breakDuration">
-      <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Break</th>
-      <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row.breakDuration }} </td>
-    </ng-container>
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Date</th>
+        <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row.date }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="workedTime">
-      <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Worked</th>
-      <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ getWorkedTime(row) }}</td>
-    </ng-container>
+      <ng-container matColumnDef="startTime">
+        <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Start Time</th>
+        <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row.startTime }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Status</th>
-      <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row.status }}</td>
-    </ng-container>
+      <ng-container matColumnDef="endTime">
+        <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">End Time</th>
+        <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row.endTime }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Actions</th>
-      <td mat-cell *matCellDef="let row" class="px-4 py-2 space-x-2">
-        <button mat-icon-button color="primary" (click)="onEdit(row)">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" (click)="onDelete(row.id)">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </td>
-    </ng-container>
+      <ng-container matColumnDef="breakDuration">
+        <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Break</th>
+        <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row.breakDuration }}</td>
+      </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns;"></tr>
-  </table>
+      <ng-container matColumnDef="workedTime">
+        <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Worked</th>
+        <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ getWorkedTime(row) }}</td>
+      </ng-container>
 
-  @if (filteredEntries().length === 0) {
-  <p class="text-gray-300 mt-4 italic">No timesheets available.</p>
-  }
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Status</th>
+        <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row.status }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Actions</th>
+        <td mat-cell *matCellDef="let row" class="px-4 py-2 space-x-2">
+          <button mat-icon-button color="primary" (click)="onEdit(row)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="onDelete(row.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+    </table>
+
+    @if (filteredEntries().length === 0) {
+    <p class="text-gray-300 mt-4 italic">No timesheets available.</p>
+    }
+  </div>
 </div>

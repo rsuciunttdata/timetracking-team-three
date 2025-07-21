@@ -159,5 +159,33 @@ export class TimesheetTable implements OnInit {
     return dates;
   }
 
+  selectedDate = signal<Date | null>(null);
+
+  onCalendarDateSelect(date: Date | null) {
+    if (!date) return;
+
+    const day = date.getDay(); 
+
+    const sunday = new Date(date);
+    sunday.setDate(date.getDate() - day); 
+
+    const saturday = new Date(sunday);
+    saturday.setDate(sunday.getDate() + 6);
+
+    this.selectedRange.set(new DateRange(sunday, saturday));
+    this.selectedDate.set(date);
+  }
+
+
+  dateClass = (d: Date) => {
+    const range = this.selectedRange();
+    if (!range.start || !range.end) return '';
+
+    const time = d.getTime();
+    const startTime = range.start.setHours(0, 0, 0, 0);
+    const endTime = range.end.setHours(0, 0, 0, 0);
+
+    return (time >= startTime && time <= endTime) ? 'selected-range' : '';
+  };
 
 }
