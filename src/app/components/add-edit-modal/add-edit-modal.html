@@ -36,13 +36,17 @@
           formControlName="endTime"
           class="w-full px-4 py-2 bg-black bg-opacity-30 rounded-md border border-gray-600 text-white"
         />
+        @if(!validateTimeRange())
+        {
+          <div  class="text-red-400 text-sm mt-1">End time must be after start time</div>
+        }
       </div>
 
       <!-- Break Duration -->
       <div class="mb-6">
         <label class="block mb-1 font-semibold" for="breakDuration">Break Duration (hh:mm)</label>
         <input
-          type="time"
+          type="number"
           id="breakDuration"
           step="60"
           formControlName="breakDuration"

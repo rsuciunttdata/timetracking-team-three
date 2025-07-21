@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, } from '@angular/forms';
+import { CommonModule, } from '@angular/common';
 import { TimesheetEntry, TimeSheetService } from '../../services/timesheet.service';
 @Component({
   selector: 'app-add-edit-modal',
@@ -22,6 +22,20 @@ export class AddEditModal {
       breakDuration: [data?.breakDuration || '']
     });
   }
+
+
+  validateTimeRange(): boolean {
+  const start = this.form.get('startTime')?.value;
+  const end = this.form.get('endTime')?.value;
+
+  if (!start || !end) return true; 
+
+  const startDate = new Date(`1970-01-01T${start}`);
+  const endDate = new Date(`1970-01-01T${end}`);
+
+  return endDate > startDate;
+}
+
 
   onCancel() {
     this.dialogRef.close();
