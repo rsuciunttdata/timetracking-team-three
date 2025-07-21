@@ -6,8 +6,8 @@ export interface TimesheetEntry {
   id: number;
   userId: number;
   date: string;
-  startTime: string; 
-  endTime: string; 
+  startTime: string;
+  endTime: string;
   breakDuration: string;
   status: 'draft' | 'submitted';
 }
@@ -21,14 +21,18 @@ export class TimeSheetService {
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) { }
 
   private get currentUserId(): number | null {
-    if(USE_MOCK) {return 2;}
+    if (USE_MOCK) { return 2; }
     return this.authService.getUserId();
   }
 
   async loadData(): Promise<void> {
+
+    this.entries.set([]); // clear first for test
+
+    await new Promise(resolve => setTimeout(resolve, 2000));
     const userId = 2;
     if (userId === null) return;
 

@@ -8,10 +8,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
 import { AddEditModal } from '../add-edit-modal/add-edit-modal';
 import { FormsModule } from '@angular/forms';
 import { TimesheetEntry, TimeSheetService } from '../../services/timesheet.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-timesheet-table',
@@ -20,7 +20,7 @@ import { TimesheetEntry, TimeSheetService } from '../../services/timesheet.servi
     CommonModule, FormsModule,
     MatTableModule, MatButtonModule,
     MatIconModule, MatFormFieldModule,
-    MatInputModule, MatDatepickerModule, MatNativeDateModule,
+    MatInputModule, MatDatepickerModule, MatNativeDateModule, MatProgressSpinnerModule
   ],
   templateUrl: './timesheet-table.html',
   styleUrl: './timesheet-table.css'
@@ -34,6 +34,7 @@ export class TimesheetTable implements OnInit {
 
   columns: string[] = ['date', 'startTime', 'endTime', 'breakDuration', 'workedTime', 'status', 'actions'];
 
+  isLoading = signal(true);
 
   timesheetEntries: TimesheetEntry[] = [];
   constructor(private dialog: MatDialog, private timesheetService: TimeSheetService,) {
@@ -41,25 +42,24 @@ export class TimesheetTable implements OnInit {
 
 
   async ngOnInit() {
-    console.log('Calling loadData...');
-    await this.timesheetService.loadData();
+    this.isLoading.set(true); //  Start spinner
 
-    const loadedEntries = this.entries();
-    console.log('Loaded entries:', loadedEntries);
+    try {
+      await this.timeSheetService.loadData(); // or getAll() if using real API
 
-    await this.timesheetService.loadData();
-    console.log('Data reloaded:', this.entries());
-
-    this.timeSheetService.loadData().then(() => {
       const today = new Date();
       const day = today.getDay();
-      const diffToMonday = today.getDate() - day + (day === 0 ? -6 : 1);
-      const monday = new Date(today.setDate(diffToMonday));
-      const sunday = new Date(new Date(monday).setDate(monday.getDate() + 6));
-      this.selectedRange.set(new DateRange(monday, sunday));
+      const sunday = new Date(today);
+      sunday.setDate(today.getDate() - day); // move to Sunday
+      const saturday = new Date(sunday);
+      saturday.setDate(sunday.getDate() + 6);
 
-    });
+      this.selectedRange.set(new DateRange(sunday, saturday));
+    } finally {
+      this.isLoading.set(false); //  Stop spinner
+    }
   }
+
 
   filteredEntries = computed(() => {
     const range = this.selectedRange();
@@ -164,10 +164,10 @@ export class TimesheetTable implements OnInit {
   onCalendarDateSelect(date: Date | null) {
     if (!date) return;
 
-    const day = date.getDay(); 
+    const day = date.getDay();
 
     const sunday = new Date(date);
-    sunday.setDate(date.getDate() - day); 
+    sunday.setDate(date.getDate() - day);
 
     const saturday = new Date(sunday);
     saturday.setDate(sunday.getDate() + 6);
