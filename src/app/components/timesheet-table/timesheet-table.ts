@@ -44,8 +44,11 @@ export class TimesheetTable implements OnInit {
     console.log('Calling loadData...');
     await this.timesheetService.loadData();
 
-    this.timesheetEntries = this.timesheetService.getEntries()();
-    console.log('Loaded timesheetEntries:', this.timesheetEntries);
+    const loadedEntries = this.entries();
+    console.log('Loaded entries:', loadedEntries);
+
+    await this.timesheetService.loadData();
+    console.log('Data reloaded:', this.entries());
 
     this.timeSheetService.loadData().then(() => {
       const today = new Date();
@@ -90,6 +93,10 @@ export class TimesheetTable implements OnInit {
 
 
   getWorkedTime(entry: TimesheetEntry): string {
+    if (!entry.startTime || !entry.endTime || !entry.breakDuration) {
+      return '-';
+    }
+
     const [sh, sm] = entry.startTime.split(':').map(Number);
     const [eh, em] = entry.endTime.split(':').map(Number);
     const [bh, bm] = entry.breakDuration.split(':').map(Number);
@@ -125,11 +132,11 @@ export class TimesheetTable implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(async (result) => {
-      console.log('Dialog closed with result:', result); // ✅ log
+      console.log('Dialog closed with result:', result); //  log
       if (result === 'saved') {
         console.log('Reloading timesheet data...');
         await this.timesheetService.loadData();
-        this.timesheetEntries = this.timesheetService.getEntries()(); // ✅ important!
+        this.timesheetEntries = this.timesheetService.getEntries()(); //  important!
         console.log('Updated timesheet entries:', this.timesheetEntries);
       }
     });
