@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "email": "admin@admin",
+    "password": "admin",
+    "role": "manager"
+  },
+  {
+    "id": 1,
+    "email": "aschiop2002@yahoo.com",
+    "password": "password123",
+    "role": "user"
+  }
+]
