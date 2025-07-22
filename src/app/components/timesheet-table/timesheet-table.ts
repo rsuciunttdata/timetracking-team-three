@@ -1,8 +1,11 @@
 import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
+import { Router } from '@angular/router';
+import { AddEditModal } from '../add-edit-modal/add-edit-modal';
 
 export interface TimesheetEntry {
   id: string;
@@ -38,6 +41,9 @@ export class TimesheetTable {
     }
   ];
 
+  constructor(private dialog: MatDialog) {
+  }
+
   getWorkedTime(entry: TimesheetEntry): string {
     const [startHour, startMin] = entry.startTime.split(':').map(Number);
     const [endHour, endMin] = entry.endTime.split(':').map(Number);
@@ -51,12 +57,24 @@ export class TimesheetTable {
   }
 
   onEdit(entry: TimesheetEntry) {
-    // TODO: Deschide modal editare
-    console.log('Edit', entry);
+   console.log('Editing entry:', entry); 
+     this.dialog.open(AddEditModal, {
+      data: entry,
+      width: '600px',
+      panelClass: 'custom-dialog-container' 
+    });
+  }
+
+   onAdd() {
+    this.dialog.open(AddEditModal, {
+      data: null,
+      width: '600px',
+      panelClass: 'custom-dialog-container'
+    });
   }
 
   onDelete(id: string) {
-    // TODO: Confirmare + DELETE
+    
     console.log('Delete', id);
   }
 }
