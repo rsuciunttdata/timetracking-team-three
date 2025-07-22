@@ -40,7 +40,7 @@ export class TimeSheetService {
   }
 
   async loadData(): Promise<void> {
-    const userId = this.currentUserId;
+    const userId = 2;
     if (userId === null) return;
 
     if (USE_MOCK) {
