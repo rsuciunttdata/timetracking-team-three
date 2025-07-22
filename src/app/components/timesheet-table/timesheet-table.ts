@@ -16,6 +16,7 @@ import { TimesheetEntry, TimeSheetService } from '../../services/timesheet.servi
 @Component({
   selector: 'app-timesheet-table',
   standalone: true,
+  standalone: true,
   imports: [
     CommonModule, FormsModule,
     MatTableModule, MatButtonModule,
@@ -116,7 +117,6 @@ export class TimesheetTable implements OnInit {
   }
 
   onEdit(entry: TimesheetEntry) {
-    console.log('Editing entry:', entry);
     this.dialog.open(AddEditModal, {
       data: entry,
       width: '600px',
