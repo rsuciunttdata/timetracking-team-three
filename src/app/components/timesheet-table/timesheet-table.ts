@@ -1,47 +1,41 @@
 import { CommonModule, NgFor, NgIf } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, effect, inject, Signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
-import { Router } from '@angular/router';
 import { AddEditModal } from '../add-edit-modal/add-edit-modal';
-
-export interface TimesheetEntry {
-  id: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  breakDuration: string;
-  status: 'editat' | 'trimis';
-}
+import { TimesheetEntry, TimeSheetService } from '../../services/timesheet.service';
 
 @Component({
   selector: 'app-timesheet-table',
+  standalone: true,
   imports: [
     CommonModule,
     MatTableModule,
     MatButtonModule,
-    MatIconModule],
+    MatIconModule,
+
+  ],
   templateUrl: './timesheet-table.html',
   styleUrl: './timesheet-table.css'
 })
 export class TimesheetTable {
   columns: string[] = ['date', 'startTime', 'endTime', 'breakDuration', 'workedTime', 'status', 'actions'];
 
-  // dummy data
-  timesheetEntries: TimesheetEntry[] = [
-    {
-      id: '1',
-      date: '2025-06-27',
-      startTime: '08:00',
-      endTime: '16:00',
-      breakDuration: '00:30',
-      status: 'trimis'
-    }
-  ];
+  private timesheetService = inject(TimeSheetService);
+  private dialog = inject(MatDialog);
 
-  constructor(private dialog: MatDialog) {
+  timesheetEntries: Signal<TimesheetEntry[]> = this.timesheetService.getEntries();
+
+  constructor() {
+    // Reactive effect to log changes (optional)
+    effect(() => {
+      console.log('Entries changed:', this.timesheetEntries());
+    });
+
+    // Load data initially
+    this.timesheetService.loadData();
   }
 
   getWorkedTime(entry: TimesheetEntry): string {
@@ -57,24 +51,29 @@ export class TimesheetTable {
   }
 
   onEdit(entry: TimesheetEntry) {
-   console.log('Editing entry:', entry); 
-     this.dialog.open(AddEditModal, {
-      data: entry,
-      width: '600px',
-      panelClass: 'custom-dialog-container' 
-    });
-  }
-
-   onAdd() {
     this.dialog.open(AddEditModal, {
-      data: null,
+      data: entry,
       width: '600px',
       panelClass: 'custom-dialog-container'
     });
   }
 
+  onAdd() {
+    const dialogRef = this.dialog.open(AddEditModal, {
+      data: null,
+      width: '600px',
+      panelClass: 'custom-dialog-container'
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      console.log('Dialog closed with result:', result);
+      if (result === 'saved') {
+        await this.timesheetService.loadData();
+      }
+    });
+  }
+
   onDelete(id: string) {
-    
     console.log('Delete', id);
   }
 }

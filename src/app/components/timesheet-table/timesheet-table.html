@@ -9,7 +9,7 @@
 
   <table
     mat-table
-    [dataSource]="timesheetEntries"
+    [dataSource]="timesheetEntries()"
     class="w-full mat-elevation-z2 bg-white bg-opacity-10 rounded-lg overflow-hidden text-white"
   >
     <!-- Date -->
@@ -65,7 +65,7 @@
     <tr mat-row *matRowDef="let row; columns: columns;"></tr>
   </table>
 
-  @if (timesheetEntries.length === 0) {
+  @if (timesheetEntries().length === 0) {
     <p class="text-gray-300 mt-4 italic">No timesheets available.</p>
   }
 </div>
