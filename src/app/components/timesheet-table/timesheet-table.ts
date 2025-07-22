@@ -93,27 +93,24 @@ export class TimesheetTable implements OnInit {
 
 
   getWorkedTime(entry: TimesheetEntry): string {
-    if (!entry.startTime || !entry.endTime || !entry.breakDuration) {
-      return '-';
-    }
+  if (!entry.startTime || !entry.endTime) return '00:00';
 
-    const [sh, sm] = entry.startTime.split(':').map(Number);
-    const [eh, em] = entry.endTime.split(':').map(Number);
-    const [bh, bm] = entry.breakDuration.split(':').map(Number);
+  const [startHour, startMin] = entry.startTime.split(':').map(Number);
+  const [endHour, endMin] = entry.endTime.split(':').map(Number);
 
-    const total = (eh * 60 + em) - (sh * 60 + sm) - (bh * 60 + bm);
-    const h = Math.floor(total / 60).toString().padStart(2, '0');
-    const m = (total % 60).toString().padStart(2, '0');
-    return `${h}:${m}`;
+  let breakHour = 0;
+  let breakMin = 0;
+
+  if (entry.breakDuration && entry.breakDuration.includes(':')) {
+    [breakHour, breakMin] = entry.breakDuration.split(':').map(Number);
   }
+  const totalMinutes =
+    (endHour * 60 + endMin) - (startHour * 60 + startMin) - (breakHour * 60 + breakMin);
+  const h = Math.floor(totalMinutes / 60).toString().padStart(2, '0');
+  const m = (totalMinutes % 60).toString().padStart(2, '0');
+  return `${h}:${m}`;
+}
 
-  onStartDateChange(date: Date | null) {
-    this.selectedRange.set(new DateRange(date, this.selectedRange().end));
-  }
-
-  onEndDateChange(date: Date | null) {
-    this.selectedRange.set(new DateRange(this.selectedRange().start, date));
-  }
 
   onEdit(entry: TimesheetEntry) {
     this.dialog.open(AddEditModal, {

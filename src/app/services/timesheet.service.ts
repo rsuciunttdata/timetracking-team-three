@@ -44,10 +44,29 @@ export class TimeSheetService {
     if (userId === null) return;
 
     if (USE_MOCK) {
-      const allEntries = this.loadFromStorage();
-      const userEntries = allEntries.filter(e => e.userId === userId);
-      this.entries.set(userEntries);
-    } else {
+    let storageEntries: TimesheetEntry[] = this.loadFromStorage();
+    let jsonEntries: TimesheetEntry[] = [];
+
+    try {
+      const response = await fetch('/timesheet.mock.json');
+      jsonEntries = await response.json();
+    } catch (err) {
+      console.error('Failed to load mock JSON:', err);
+    }
+
+   
+    const combined = [...jsonEntries, ...storageEntries];
+    const uniqueEntriesMap = new Map<number, TimesheetEntry>();
+    for (const entry of combined) {
+      uniqueEntriesMap.set(entry.id, entry); 
+    }
+
+    const allEntries = Array.from(uniqueEntriesMap.values());
+
+    this.saveToStorage(allEntries);
+    const userEntries = allEntries.filter(e => e.userId === userId);
+    this.entries.set(userEntries);
+  }else {
       try {
         const result = await firstValueFrom(
           this.http.get<TimesheetEntry[]>(`/api/timesheets?userId=${userId}`)
