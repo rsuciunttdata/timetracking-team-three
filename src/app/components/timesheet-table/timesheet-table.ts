@@ -42,21 +42,19 @@ export class TimesheetTable implements OnInit {
 
 
   async ngOnInit() {
-    this.isLoading.set(true); //  Start spinner
+    this.isLoading.set(true);
 
     try {
-      await this.timeSheetService.loadData(); // or getAll() if using real API
-
+      await this.timeSheetService.loadData();
       const today = new Date();
       const day = today.getDay();
-      const sunday = new Date(today);
-      sunday.setDate(today.getDate() - day); // move to Sunday
-      const saturday = new Date(sunday);
-      saturday.setDate(sunday.getDate() + 6);
+      const diffToMonday = today.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(today.setDate(diffToMonday));
+      const sunday = new Date(new Date(monday).setDate(monday.getDate() + 6));
+      this.selectedRange.set(new DateRange(monday, sunday));
 
-      this.selectedRange.set(new DateRange(sunday, saturday));
     } finally {
-      this.isLoading.set(false); //  Stop spinner
+      this.isLoading.set(false);
     }
   }
 
