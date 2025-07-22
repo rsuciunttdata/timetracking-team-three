@@ -39,16 +39,24 @@ export class TimesheetTable {
   }
 
   getWorkedTime(entry: TimesheetEntry): string {
-    const [startHour, startMin] = entry.startTime.split(':').map(Number);
-    const [endHour, endMin] = entry.endTime.split(':').map(Number);
-    const [breakHour, breakMin] = entry.breakDuration.split(':').map(Number);
+  if (!entry.startTime || !entry.endTime) return '00:00';
 
-    const totalMinutes = (endHour * 60 + endMin) - (startHour * 60 + startMin) - (breakHour * 60 + breakMin);
-    const h = Math.floor(totalMinutes / 60).toString().padStart(2, '0');
-    const m = (totalMinutes % 60).toString().padStart(2, '0');
+  const [startHour, startMin] = entry.startTime.split(':').map(Number);
+  const [endHour, endMin] = entry.endTime.split(':').map(Number);
 
-    return `${h}:${m}`;
+  let breakHour = 0;
+  let breakMin = 0;
+
+  if (entry.breakDuration && entry.breakDuration.includes(':')) {
+    [breakHour, breakMin] = entry.breakDuration.split(':').map(Number);
   }
+  const totalMinutes =
+    (endHour * 60 + endMin) - (startHour * 60 + startMin) - (breakHour * 60 + breakMin);
+  const h = Math.floor(totalMinutes / 60).toString().padStart(2, '0');
+  const m = (totalMinutes % 60).toString().padStart(2, '0');
+  return `${h}:${m}`;
+}
+
 
   onEdit(entry: TimesheetEntry) {
     this.dialog.open(AddEditModal, {

@@ -49,6 +49,8 @@ export class AddEditModal {
 
   const formData = this.form.value;
 
+    console.log('Form submission:', formData);
+
   try {
     if (this.isEdit && this.data?.id != null) {
    
