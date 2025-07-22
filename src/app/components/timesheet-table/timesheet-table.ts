@@ -186,4 +186,8 @@ export class TimesheetTable implements OnInit {
     return (time >= startTime && time <= endTime) ? 'selected-range' : '';
   };
 
+  isWeekend(dateStr: string): boolean {
+  const day = new Date(dateStr).getDay();
+  return day === 0 || day === 6;
+}
 }

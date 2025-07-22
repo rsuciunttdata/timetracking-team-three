@@ -2,10 +2,7 @@
 
   <div class="lg:w-1/4 w-full">
 
-    <mat-calendar 
-      [selected]="selectedDate()" 
-      (selectedChange)="onCalendarDateSelect($event)" 
-      [dateClass]="dateClass">
+    <mat-calendar [selected]="selectedDate()" (selectedChange)="onCalendarDateSelect($event)" [dateClass]="dateClass">
     </mat-calendar>
 
     <p class="mt-4 text-sm italic">
@@ -29,9 +26,9 @@
         + Add Timesheet
       </button>
 
-      <table mat-table [dataSource]="filteredEntries()" 
+      <table mat-table [dataSource]="filteredEntries()"
         class="w-full mat-elevation-z2 bg-white bg-opacity-10 rounded-lg overflow-hidden text-white">
-        
+
         <!-- Table Columns -->
         <ng-container matColumnDef="date">
           <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Date</th>
@@ -76,11 +73,13 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="columns"></tr>
-        <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns;"
+          [ngClass]="{ 'opacity-50 pointer-events-none': isWeekend(row.date) }">
+        </tr>
       </table>
 
       @if (filteredEntries().length === 0) {
-        <p class="text-gray-300 mt-4 italic">No timesheets available.</p>
+      <p class="text-gray-300 mt-4 italic">No timesheets available.</p>
       }
     </ng-template>
   </div>
