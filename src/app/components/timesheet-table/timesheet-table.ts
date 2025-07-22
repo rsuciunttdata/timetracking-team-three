@@ -16,7 +16,6 @@ import { TimesheetEntry, TimeSheetService } from '../../services/timesheet.servi
 @Component({
   selector: 'app-timesheet-table',
   standalone: true,
-  standalone: true,
   imports: [
     CommonModule, FormsModule,
     MatTableModule, MatButtonModule,
