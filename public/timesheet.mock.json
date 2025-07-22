@@ -43,5 +43,78 @@
         "endTime": "17:00",
         "breakDuration": "01:00",
         "status": "submitted"
+    },
+    {
+        "id": 1,
+        "userId": 2,
+        "date": "2025-07-20",
+        "startTime": "08:00",
+        "endTime": "16:30",
+        "breakDuration": "00:30",
+        "status": "submitted"
+    },
+    {
+        "id": 2,
+        "userId": 2,
+        "date": "2025-07-21",
+        "startTime": "09:00",
+        "endTime": "17:00",
+        "breakDuration": "00:45",
+        "status": "draft"
+    },
+    {
+        "id": 3,
+        "userId": 2,
+        "date": "2025-07-22",
+        "startTime": "08:15",
+        "endTime": "16:00",
+        "breakDuration": "00:30",
+        "status": "submitted"
+    },
+    {
+        "id": 4,
+        "userId": 2,
+        "date": "2025-07-23",
+        "startTime": "07:45",
+        "endTime": "15:30",
+        "breakDuration": "00:20",
+        "status": "draft"
+    },
+    {
+        "id": 5,
+        "userId": 2,
+        "date": "2025-07-24",
+        "startTime": "09:00",
+        "endTime": "17:00",
+        "breakDuration": "01:00",
+        "status": "submitted"
+    },
+    {
+        "id": 4,
+        "userId": 2,
+        "date": "2025-07-24",
+        "startTime": "07:45",
+        "endTime": "15:30",
+        "breakDuration": "00:20",
+        "status": "draft"
+    },
+    {
+        "id": 5,
+        "userId": 2,
+        "date": "2025-07-25",
+        "startTime": "09:00",
+        "endTime": "17:00",
+        "breakDuration": "01:00",
+        "status": "submitted"
+    }
+    ,
+    {
+        "id": 5,
+        "userId": 2,
+        "date": "2025-07-26",
+        "startTime": "09:00",
+        "endTime": "17:00",
+        "breakDuration": "01:00",
+        "status": "submitted"
     }
 ]
