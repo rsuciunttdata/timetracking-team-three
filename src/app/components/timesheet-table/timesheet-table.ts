@@ -160,7 +160,7 @@ export class TimesheetTable implements OnInit {
 
     const day = date.getDay(); 
     const monday = new Date(date);
-    monday.setDate(date.getDate() - day + (day === 0 ? -6 : 1));
+    monday.setDate(date.getDate() - day );
 
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
