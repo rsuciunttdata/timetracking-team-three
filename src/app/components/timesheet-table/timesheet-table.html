@@ -5,10 +5,6 @@
     <mat-calendar [selected]="selectedDate()" (selectedChange)="onCalendarDateSelect($event)" [dateClass]="dateClass">
     </mat-calendar>
 
-    <p class="mt-4 text-sm italic">
-      {{ selectedRange().start?.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) }} –
-      {{ selectedRange().end?.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) }}
-    </p>
   </div>
 
   <div class="lg:w-3/4 w-full">
@@ -25,6 +21,12 @@
         class="mb-6 px-5 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition shadow-md">
         + Add Timesheet
       </button>
+
+      <p class="mt-4 text-lg font-semibold  tracking-wide">
+        {{ selectedRange().start?.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) }}
+        -
+        {{ selectedRange().end?.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) }}
+      </p>
 
       <table mat-table [dataSource]="filteredEntries()"
         class="w-full mat-elevation-z2 bg-white bg-opacity-10 rounded-lg overflow-hidden text-white">
