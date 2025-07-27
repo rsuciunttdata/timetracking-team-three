@@ -22,11 +22,11 @@
         + Add Timesheet
       </button>
 
-      <p class="mt-4 text-lg font-semibold  tracking-wide">
+      <!-- <p class="mt-4 text-lg font-semibold  tracking-wide">
         {{ selectedRange().start?.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) }}
         -
         {{ selectedRange().end?.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) }}
-      </p>
+      </p> -->
 
       <table mat-table [dataSource]="filteredEntries()"
         class="w-full mat-elevation-z2 bg-white bg-opacity-10 rounded-lg overflow-hidden text-white">

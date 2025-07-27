@@ -46,28 +46,36 @@ export class TimesheetTable implements OnInit {
 
     try {
       await this.timeSheetService.loadData();
-      const today = new Date();
-      const day = today.getDay();
-      const diffToMonday = today.getDate() - day + (day === 0 ? -6 : 1);
-      const monday = new Date(today.setDate(diffToMonday));
-      const sunday = new Date(new Date(monday).setDate(monday.getDate() + 6));
-      this.selectedRange.set(new DateRange(monday, sunday));
 
+      const today = new Date();
+      const range = this.getWeekRangeFor(today);
+
+      this.selectedRange.set(range);
+      this.selectedDate.set(today);
     } finally {
       this.isLoading.set(false);
     }
   }
 
+  private getWeekRangeFor(date: Date): DateRange<Date> {
+    const day = date.getDay();
+    const sunday = new Date(date);
+    sunday.setDate(date.getDate() - day + (day === 0 ? -6 : 1));
+
+    const saturday = new Date(sunday);
+    saturday.setDate(sunday.getDate() + 6);
+
+    return new DateRange(sunday, saturday);
+  }
 
   filteredEntries = computed(() => {
     const range = this.selectedRange();
     if (!range.start || !range.end) return [];
 
     const dateList = this.getDatesInRange(range.start, range.end);
-
+    console.log('Date order in filteredEntries:', dateList);
     console.log('Selected Range:', range.start, 'to', range.end);
     console.log('Date List:', dateList);
-
     return dateList.map(dateStr => {
       const normalizedDateStr = new Date(dateStr).toISOString().split('T')[0];
 
@@ -142,33 +150,28 @@ export class TimesheetTable implements OnInit {
 
   getDatesInRange(start: Date, end: Date): string[] {
     const dates: string[] = [];
-    const current = new Date(start.getFullYear(), start.getMonth(), start.getDate()); // clone, clear time
-    const final = new Date(end.getFullYear(), end.getMonth(), end.getDate());         // clear time
+    const current = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    const final = new Date(end.getFullYear(), end.getMonth(), end.getDate());
 
     while (current <= final) {
-      dates.push(current.toISOString().split('T')[0]);
+      dates.push(new Date(current).toISOString().split('T')[0]);
       current.setDate(current.getDate() + 1);
     }
 
     return dates;
   }
 
+
   selectedDate = signal<Date | null>(null);
 
   onCalendarDateSelect(date: Date | null) {
     if (!date) return;
 
-    const day = date.getDay(); 
-    const monday = new Date(date);
-    monday.setDate(date.getDate() - day );
+    const range = this.getWeekRangeFor(date);
 
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-
-    this.selectedRange.set(new DateRange(monday, sunday));
+    this.selectedRange.set(range);
     this.selectedDate.set(date);
   }
-
 
 
   dateClass = (d: Date) => {
