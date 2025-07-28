@@ -101,21 +101,21 @@ export class TimesheetTable implements OnInit {
   getWorkedTime(entry: TimesheetEntry): string {
     if (!entry.startTime || !entry.endTime) return ' ';
 
-    const [startHour, startMin] = entry.startTime.split(':').map(Number);
-    const [endHour, endMin] = entry.endTime.split(':').map(Number);
+      const [startHour, startMin] = entry.startTime.split(':').map(Number);
+      const [endHour, endMin] = entry.endTime.split(':').map(Number);
 
-    let breakHour = 0;
-    let breakMin = 0;
+      let breakHour = 0;
+      let breakMin = 0;
 
-    if (entry.breakDuration && entry.breakDuration.includes(':')) {
-      [breakHour, breakMin] = entry.breakDuration.split(':').map(Number);
+      if (entry.breakDuration && entry.breakDuration.includes(':')) {
+        [breakHour, breakMin] = entry.breakDuration.split(':').map(Number);
+      }
+      const totalMinutes =
+        (endHour * 60 + endMin) - (startHour * 60 + startMin) - (breakHour * 60 + breakMin);
+      const h = Math.floor(totalMinutes / 60).toString().padStart(2, '0');
+      const m = (totalMinutes % 60).toString().padStart(2, '0');
+      return `${h}:${m}`;
     }
-    const totalMinutes =
-      (endHour * 60 + endMin) - (startHour * 60 + startMin) - (breakHour * 60 + breakMin);
-    const h = Math.floor(totalMinutes / 60).toString().padStart(2, '0');
-    const m = (totalMinutes % 60).toString().padStart(2, '0');
-    return `${h}:${m}`;
-  }
 
 
   onEdit(entry: TimesheetEntry) {
@@ -144,8 +144,37 @@ export class TimesheetTable implements OnInit {
     });
   }
 
-  onDelete(id: string) {
-    console.log('Delete', id);
+  async onDelete(id: number) {
+    if (!id) return;
+
+    const confirmed = confirm('Are you sure you want to delete this entry?');
+
+    if (confirmed) {
+      await this.timesheetService.deleteEntry(id);
+      this.timesheetEntries = this.timesheetService.getEntries()();
+    }
+  }
+
+  toastVisible = false;
+  toastIdToDelete: number | null = null;
+
+  showDeleteToast(id: number) {
+    this.toastVisible = true;
+    this.toastIdToDelete = id;
+  }
+
+  confirmDelete() {
+    if (this.toastIdToDelete !== null) {
+      this.timesheetService.deleteEntry(this.toastIdToDelete);
+      this.timesheetEntries = this.timesheetService.getEntries()();
+    }
+    this.toastVisible = false;
+    this.toastIdToDelete = null;
+  }
+
+  cancelDelete() {
+    this.toastVisible = false;
+    this.toastIdToDelete = null;
   }
 
   getDatesInRange(start: Date, end: Date): string[] {
@@ -168,6 +197,13 @@ export class TimesheetTable implements OnInit {
     if (!date) return;
 
     const range = this.getWeekRangeFor(date);
+    const day = date.getDay();
+
+    const sunday = new Date(date);
+    sunday.setDate(date.getDate() - day);
+
+    const saturday = new Date(sunday);
+    saturday.setDate(sunday.getDate() + 6);
 
     this.selectedRange.set(range);
     this.selectedDate.set(date);
