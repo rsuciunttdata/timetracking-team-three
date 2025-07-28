@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { FormBuilder, FormGroup, ReactiveFormsModule, } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, } from '@angular/forms';
 import { CommonModule, } from '@angular/common';
 import { TimesheetEntry, TimeSheetService } from '../../services/timesheet.service';
 @Component({
@@ -13,58 +13,60 @@ export class AddEditModal {
   isEdit = false;
   form: FormGroup;
   constructor(@Inject(MAT_DIALOG_DATA) public data: TimesheetEntry | null, private fb: FormBuilder, private dialogRef: MatDialogRef<AddEditModal>, private timesheetService: TimeSheetService) {
-    console.log('MODAL opened with data:', data); 
+    console.log('MODAL opened with data:', data);
     this.isEdit = !!data;
+    
     this.form = this.fb.group({
-      date: [data?.date || ''],
-      startTime: [data?.startTime || ''],
-      endTime: [data?.endTime || ''],
-      breakDuration: [data?.breakDuration || '']
+      date: [data?.date || '', Validators.required],
+      startTime: [data?.startTime || '', Validators.required],
+      endTime: [data?.endTime || '', Validators.required],
+      breakDuration: [data?.breakDuration || '', Validators.required]
     });
+
   }
 
 
   validateTimeRange(): boolean {
-  const start = this.form.get('startTime')?.value;
-  const end = this.form.get('endTime')?.value;
+    const start = this.form.get('startTime')?.value;
+    const end = this.form.get('endTime')?.value;
 
-  if (!start || !end) return true; 
+    if (!start || !end) return true;
 
-  const startDate = new Date(`1970-01-01T${start}`);
-  const endDate = new Date(`1970-01-01T${end}`);
+    const startDate = new Date(`1970-01-01T${start}`);
+    const endDate = new Date(`1970-01-01T${end}`);
 
-  return endDate > startDate;
-}
+    return endDate > startDate;
+  }
 
 
   onCancel() {
     this.dialogRef.close();
   }
 
- async onSubmit() {
-  if (this.form.invalid) {
-    this.form.markAllAsTouched();
-    return;
-  }
+  async onSubmit() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
 
-  const formData = this.form.value;
+    const formData = this.form.value;
 
     console.log('Form submission:', formData);
 
-  try {
-    if (this.isEdit && this.data?.id != null) {
-   
-      await this.timesheetService.updateEntry(this.data.id, formData);
-    } else {
-    
-      await this.timesheetService.addEntry(formData);
-    }
+    try {
+      if (this.isEdit && this.data?.id != null) {
 
-    this.dialogRef.close('saved'); 
-  } catch (err) {
-    console.error('Eroare la salvare:', err);
+        await this.timesheetService.updateEntry(this.data.id, formData);
+      } else {
+
+        await this.timesheetService.addEntry(formData);
+      }
+
+      this.dialogRef.close('saved');
+    } catch (err) {
+      console.error('Eroare la salvare:', err);
+    }
   }
-}
 
 
 }
