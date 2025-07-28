@@ -99,7 +99,7 @@ export class TimesheetTable implements OnInit {
 
 
   getWorkedTime(entry: TimesheetEntry): string {
-    if (!entry.startTime || !entry.endTime) return '00:00';
+    if (!entry.startTime || !entry.endTime) return ' ';
 
     const [startHour, startMin] = entry.startTime.split(':').map(Number);
     const [endHour, endMin] = entry.endTime.split(':').map(Number);
