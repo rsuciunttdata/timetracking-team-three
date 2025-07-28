@@ -12,10 +12,11 @@ import { TimesheetEntry, TimeSheetService } from '../../services/timesheet.servi
 export class AddEditModal {
   isEdit = false;
   form: FormGroup;
+
   constructor(@Inject(MAT_DIALOG_DATA) public data: TimesheetEntry | null, private fb: FormBuilder, private dialogRef: MatDialogRef<AddEditModal>, private timesheetService: TimeSheetService) {
     console.log('MODAL opened with data:', data);
     this.isEdit = !!data;
-    
+
     this.form = this.fb.group({
       date: [data?.date || '', Validators.required],
       startTime: [data?.startTime || '', Validators.required],
@@ -24,7 +25,6 @@ export class AddEditModal {
     });
 
   }
-
 
   validateTimeRange(): boolean {
     const start = this.form.get('startTime')?.value;
@@ -37,7 +37,6 @@ export class AddEditModal {
 
     return endDate > startDate;
   }
-
 
   onCancel() {
     this.dialogRef.close();
@@ -52,6 +51,12 @@ export class AddEditModal {
     const formData = this.form.value;
 
     console.log('Form submission:', formData);
+
+    const breakVal = this.form.get('breakDuration')?.value;
+    if (!this.isValidTimeFormat(breakVal)) {
+      alert('Break duration must be in hh:mm format');
+      return;
+    }
 
     try {
       if (this.isEdit && this.data?.id != null) {
@@ -68,5 +73,8 @@ export class AddEditModal {
     }
   }
 
+  private isValidTimeFormat(value: string): boolean {
+    return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
+  }
 
 }
