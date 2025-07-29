@@ -20,7 +20,7 @@ export class TimeSheetService {
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) { }
 
   private get currentUserId(): number | null {
     const USE_MOCK = true

@@ -1,92 +1,123 @@
 <div class="flex flex-col lg:flex-row gap-10 px-6 py-8 text-cutomWhite font-clash">
 
   <div class="lg:w-1/4 w-full">
-    <h2 class="text-xl font-semibold mb-4">Select Week</h2>
 
     <mat-calendar [selected]="selectedDate()" (selectedChange)="onCalendarDateSelect($event)" [dateClass]="dateClass">
     </mat-calendar>
 
-    <p class="mt-4 text-sm">
-      {{ selectedRange().start?.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) }} –
-      {{ selectedRange().end?.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) }}
-    </p>
-
   </div>
-
 
   <div class="lg:w-3/4 w-full">
-    <h2 class="text-3xl font-semibold mb-6 drop-shadow-[0_0_8px_#000000]">My Timesheets</h2>
-    @if(toastVisible){
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-    <div
-      class="p-6 bg-gray-800 border border-gray-600 text-white rounded-lg shadow-lg flex flex-col items-center space-y-4 transition duration-300">
-      <p class="text-sm">Are you sure you want to delete this timesheet?</p>
-      <div class="flex space-x-4">
-        <button (click)="confirmDelete()"
-          class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Yes, delete</button>
-        <button (click)="cancelDelete()"
-          class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded">Cancel</button>
+    <ng-container *ngIf="isLoading(); else tableContent">
+      <div class="flex justify-center items-center h-[300px] w-full">
+        <div class="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
       </div>
-    </div>
-  </div>
-}
+    </ng-container>
 
-    <button (click)="onAdd()"
-      class="mb-6 px-5 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition shadow-md">
-      + Add Timesheet
-    </button>
+    <ng-template #tableContent>
+      <h2 class="text-3xl font-semibold mb-6 drop-shadow-[0_0_8px_#000000]">My Timesheets</h2>
+      @if(toastVisible){
+      <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+        <div
+          class="p-6 bg-gray-800 border border-gray-600 text-white rounded-lg shadow-lg flex flex-col items-center space-y-4 transition duration-300">
+          <p class="text-sm">Are you sure you want to delete this timesheet?</p>
+          <div class="flex space-x-4">
+            <button (click)="confirmDelete()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Yes,
+              delete</button>
+            <button (click)="cancelDelete()"
+              class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded">Cancel</button>
+          </div>
+        </div>
+      </div>
+      }
 
-    <table mat-table [dataSource]="filteredEntries()"
-      class="w-full mat-elevation-z2 bg-white bg-opacity-10 rounded-lg overflow-hidden text-white">
+      <button (click)="onAdd()"
+        class="mb-6 px-5 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition shadow-md">
+        + Add Timesheet
+      </button>
 
-      <ng-container matColumnDef="date">
-        <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Date</th>
-        <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row.date }}</td>
-      </ng-container>
+      <table mat-table [dataSource]="filteredEntries()"
+        class="w-full mat-elevation-z2 bg-white bg-opacity-10 rounded-lg overflow-hidden text-white">
 
-      <ng-container matColumnDef="startTime">
-        <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Start Time</th>
-        <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row.startTime }}</td>
-      </ng-container>
+        <!-- Table Columns -->
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Date</th>
+          <td mat-cell *matCellDef="let row" class="px-4 py-2">
+            <div class=" uppercase text-sm">
+              {{ row.date | date: 'EEE' }} {{ row.date | date: 'yyyy-MM-dd' }}
+            </div>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="endTime">
-        <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">End Time</th>
-        <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row.endTime }}</td>
-      </ng-container>
+        <ng-container matColumnDef="startTime">
+          <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Start Time</th>
+          <td mat-cell *matCellDef="let row" class="px-4 py-2">
+            <div *ngIf="row.startTime; else noStartTime" class="flex items-center gap-1">
+              <mat-icon class="text-base">play_circle_outline</mat-icon>
+              <span>{{ row.startTime }}</span>
+            </div>
+            <ng-template #noStartTime><span class="text-gray-400">—</span></ng-template>
+        </ng-container>
 
-      <ng-container matColumnDef="breakDuration">
-        <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Break</th>
-        <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row.breakDuration }}</td>
-      </ng-container>
+        <ng-container matColumnDef="endTime">
+          <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">End Time</th>
+          <td mat-cell *matCellDef="let row" class="px-4 py-2">
+            <div *ngIf="row.endTime; else noEndTime" class="flex items-center gap-1">
+              <mat-icon class="text-base ">stop</mat-icon>
+              <span>{{ row.endTime }}</span>
+            </div>
+            <ng-template #noEndTime><span class="text-gray-400">—</span></ng-template>
 
-      <ng-container matColumnDef="workedTime">
-        <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Worked</th>
-        <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ getWorkedTime(row) }}</td>
-      </ng-container>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Status</th>
-        <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ row.status }}</td>
-      </ng-container>
+        <ng-container matColumnDef="breakDuration">
+          <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Break</th>
+          <td mat-cell *matCellDef="let row" class="px-4 py-2">
+            <div *ngIf="row.breakDuration; else noBreak" class="flex items-center gap-1">
+              <mat-icon class="text-base ">pause_circle_outline</mat-icon>
+              <span>{{ row.breakDuration }}</span>
+            </div>
+            <ng-template #noBreak><span class="text-gray-400">—</span></ng-template>
 
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Actions</th>
-        <td mat-cell *matCellDef="let row" class="px-4 py-2 space-x-2">
-          <button mat-icon-button color="primary" (click)="onEdit(row)">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="showDeleteToast(row.id)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
+        </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="columns"></tr>
-      <tr mat-row *matRowDef="let row; columns: columns;"></tr>
-    </table>
+        <ng-container matColumnDef="workedTime">
+          <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Worked</th>
+          <td mat-cell *matCellDef="let row" class="px-4 py-2">{{ getWorkedTime(row) }}</td>
+        </ng-container>
 
-    @if (filteredEntries().length === 0) {
-    <p class="text-gray-300 mt-4 italic">No timesheets available.</p>
-    }
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Status</th>
+          <td mat-cell *matCellDef="let row" class="px-4 py-2">
+            {{ row.startTime || row.endTime || row.breakDuration ? row.status : 'incomplete' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Actions</th>
+          <td mat-cell *matCellDef="let row" class="px-4 py-2 space-x-2">
+            <button mat-icon-button color="primary" (click)="onEdit(row)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="onDelete(row.id)">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="onDelete(row.id)">
+              <mat-icon>done_outline</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns;"
+          [ngClass]="{ 'opacity-50 pointer-events-none': isWeekend(row.date) }">
+        </tr>
+      </table>
+
+      @if (filteredEntries().length === 0) {
+      <p class="text-gray-300 mt-4 italic">No timesheets available.</p>
+      }
+    </ng-template>
   </div>
 </div>

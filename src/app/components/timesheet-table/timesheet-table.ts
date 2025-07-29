@@ -8,10 +8,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
 import { AddEditModal } from '../add-edit-modal/add-edit-modal';
 import { FormsModule } from '@angular/forms';
 import { TimesheetEntry, TimeSheetService } from '../../services/timesheet.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-timesheet-table',
@@ -20,7 +20,7 @@ import { TimesheetEntry, TimeSheetService } from '../../services/timesheet.servi
     CommonModule, FormsModule,
     MatTableModule, MatButtonModule,
     MatIconModule, MatFormFieldModule,
-    MatInputModule, MatDatepickerModule, MatNativeDateModule,
+    MatInputModule, MatDatepickerModule, MatNativeDateModule, MatProgressSpinnerModule
   ],
   templateUrl: './timesheet-table.html',
   styleUrl: './timesheet-table.css'
@@ -34,6 +34,7 @@ export class TimesheetTable implements OnInit {
 
   columns: string[] = ['date', 'startTime', 'endTime', 'breakDuration', 'workedTime', 'status', 'actions'];
 
+  isLoading = signal(true);
 
   timesheetEntries: TimesheetEntry[] = [];
   constructor(private dialog: MatDialog, private timesheetService: TimeSheetService,) {
@@ -41,24 +42,30 @@ export class TimesheetTable implements OnInit {
 
 
   async ngOnInit() {
-    console.log('Calling loadData...');
-    await this.timesheetService.loadData();
+    this.isLoading.set(true);
 
-    const loadedEntries = this.entries();
-    console.log('Loaded entries:', loadedEntries);
+    try {
+      await this.timeSheetService.loadData();
 
-    await this.timesheetService.loadData();
-    console.log('Data reloaded:', this.entries());
-
-    this.timeSheetService.loadData().then(() => {
       const today = new Date();
-      const day = today.getDay();
-      const diffToMonday = today.getDate() - day + (day === 0 ? -6 : 1);
-      const monday = new Date(today.setDate(diffToMonday));
-      const sunday = new Date(new Date(monday).setDate(monday.getDate() + 6));
-      this.selectedRange.set(new DateRange(monday, sunday));
+      const range = this.getWeekRangeFor(today);
 
-    });
+      this.selectedRange.set(range);
+      this.selectedDate.set(today);
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  private getWeekRangeFor(date: Date): DateRange<Date> {
+    const day = date.getDay();
+    const sunday = new Date(date);
+    sunday.setDate(date.getDate() - day + (day === 0 ? -6 : 1));
+
+    const saturday = new Date(sunday);
+    saturday.setDate(sunday.getDate() + 6);
+
+    return new DateRange(sunday, saturday);
   }
 
   filteredEntries = computed(() => {
@@ -66,10 +73,9 @@ export class TimesheetTable implements OnInit {
     if (!range.start || !range.end) return [];
 
     const dateList = this.getDatesInRange(range.start, range.end);
-
+    console.log('Date order in filteredEntries:', dateList);
     console.log('Selected Range:', range.start, 'to', range.end);
     console.log('Date List:', dateList);
-
     return dateList.map(dateStr => {
       const normalizedDateStr = new Date(dateStr).toISOString().split('T')[0];
 
@@ -93,23 +99,23 @@ export class TimesheetTable implements OnInit {
 
 
   getWorkedTime(entry: TimesheetEntry): string {
-    if (!entry.startTime || !entry.endTime) return '00:00';
+    if (!entry.startTime || !entry.endTime) return ' ';
 
-    const [startHour, startMin] = entry.startTime.split(':').map(Number);
-    const [endHour, endMin] = entry.endTime.split(':').map(Number);
+      const [startHour, startMin] = entry.startTime.split(':').map(Number);
+      const [endHour, endMin] = entry.endTime.split(':').map(Number);
 
-    let breakHour = 0;
-    let breakMin = 0;
+      let breakHour = 0;
+      let breakMin = 0;
 
-    if (entry.breakDuration && entry.breakDuration.includes(':')) {
-      [breakHour, breakMin] = entry.breakDuration.split(':').map(Number);
+      if (entry.breakDuration && entry.breakDuration.includes(':')) {
+        [breakHour, breakMin] = entry.breakDuration.split(':').map(Number);
+      }
+      const totalMinutes =
+        (endHour * 60 + endMin) - (startHour * 60 + startMin) - (breakHour * 60 + breakMin);
+      const h = Math.floor(totalMinutes / 60).toString().padStart(2, '0');
+      const m = (totalMinutes % 60).toString().padStart(2, '0');
+      return `${h}:${m}`;
     }
-    const totalMinutes =
-      (endHour * 60 + endMin) - (startHour * 60 + startMin) - (breakHour * 60 + breakMin);
-    const h = Math.floor(totalMinutes / 60).toString().padStart(2, '0');
-    const m = (totalMinutes % 60).toString().padStart(2, '0');
-    return `${h}:${m}`;
-  }
 
 
   onEdit(entry: TimesheetEntry) {
@@ -173,22 +179,24 @@ export class TimesheetTable implements OnInit {
 
   getDatesInRange(start: Date, end: Date): string[] {
     const dates: string[] = [];
-    const current = new Date(start.getFullYear(), start.getMonth(), start.getDate()); // clone, clear time
-    const final = new Date(end.getFullYear(), end.getMonth(), end.getDate());         // clear time
+    const current = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    const final = new Date(end.getFullYear(), end.getMonth(), end.getDate());
 
     while (current <= final) {
-      dates.push(current.toISOString().split('T')[0]);
+      dates.push(new Date(current).toISOString().split('T')[0]);
       current.setDate(current.getDate() + 1);
     }
 
     return dates;
   }
 
+
   selectedDate = signal<Date | null>(null);
 
   onCalendarDateSelect(date: Date | null) {
     if (!date) return;
 
+    const range = this.getWeekRangeFor(date);
     const day = date.getDay();
 
     const sunday = new Date(date);
@@ -197,7 +205,7 @@ export class TimesheetTable implements OnInit {
     const saturday = new Date(sunday);
     saturday.setDate(sunday.getDate() + 6);
 
-    this.selectedRange.set(new DateRange(sunday, saturday));
+    this.selectedRange.set(range);
     this.selectedDate.set(date);
   }
 
@@ -213,4 +221,8 @@ export class TimesheetTable implements OnInit {
     return (time >= startTime && time <= endTime) ? 'selected-range' : '';
   };
 
+  isWeekend(dateStr: string): boolean {
+    const day = new Date(dateStr).getDay();
+    return day === 0 || day === 6;
+  }
 }
