@@ -9,7 +9,7 @@ import {
 } from '@angular/common/http';
 import { Observable, of, from, throwError } from 'rxjs';
 import { delay, catchError } from 'rxjs/operators';
-import { TimesheetEntry } from './timesheet.service';
+import { TimesheetEntry } from '../services/timesheet.service';
 
 const USE_MOCK = true;
 const STORAGE_KEY = 'mock-timesheets';
