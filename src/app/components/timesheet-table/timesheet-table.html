@@ -39,11 +39,12 @@
 
       <div class="overflow-x-auto">
         <table mat-table [dataSource]="filteredEntries()"
-          class="min-w-[700px] w-full mat-elevation-z2 bg-white bg-opacity-10 rounded-lg overflow-hidden text-white text-sm">
-
+          class="min-w-[700px] w-full mat-elevation-z2 bg-white bg-opacity-10 rounded-lg overflow-hidden text-white text-xs sm:text-sm md:text-base">
           <ng-container matColumnDef="date">
-            <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Date</th>
-            <td mat-cell *matCellDef="let row" class="px-4 py-2">
+            <th mat-header-cell *matHeaderCellDef
+              class="px-2 sm:px-4 py-2 bg-black bg-opacity-30 font-semibold text-xs sm:text-sm md:text-base">
+              Date</th>
+            <td mat-cell *matCellDef="let row" class="px-2 sm:px-4 py-2 text-xs sm:text-sm md:text-base">
               <div class="uppercase text-sm">
                 {{ row.date | date: 'EEE' }} {{ row.date | date: 'yyyy-MM-dd' }}
               </div>
@@ -51,8 +52,10 @@
           </ng-container>
 
           <ng-container matColumnDef="startTime">
-            <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Start Time</th>
-            <td mat-cell *matCellDef="let row" class="px-4 py-2">
+            <th mat-header-cell *matHeaderCellDef
+              class="px-2 sm:px-4 py-2 bg-black bg-opacity-30 font-semibold text-xs sm:text-sm md:text-base">
+              Start Time</th>
+            <td mat-cell *matCellDef="let row" class="px-2 sm:px-4 py-2 text-xs sm:text-sm md:text-base">
               <div *ngIf="row.startTime; else noStartTime" class="flex items-center gap-1">
                 <mat-icon class="text-base">play_circle_outline</mat-icon>
                 <span>{{ row.startTime }}</span>
@@ -62,8 +65,10 @@
           </ng-container>
 
           <ng-container matColumnDef="endTime">
-            <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">End Time</th>
-            <td mat-cell *matCellDef="let row" class="px-4 py-2">
+            <th mat-header-cell *matHeaderCellDef
+              class="px-2 sm:px-4 py-2 bg-black bg-opacity-30 font-semibold text-xs sm:text-sm md:text-base">
+              End Time</th>
+            <td mat-cell *matCellDef="let row" class="px-2 sm:px-4 py-2 text-xs sm:text-sm md:text-base">
               <div *ngIf="row.endTime; else noEndTime" class="flex items-center gap-1">
                 <mat-icon class="text-base">stop</mat-icon>
                 <span>{{ row.endTime }}</span>
@@ -73,8 +78,10 @@
           </ng-container>
 
           <ng-container matColumnDef="breakDuration">
-            <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Break</th>
-            <td mat-cell *matCellDef="let row" class="px-4 py-2">
+            <th mat-header-cell *matHeaderCellDef
+              class="px-2 sm:px-4 py-2 bg-black bg-opacity-30 font-semibold text-xs sm:text-sm md:text-base">
+              Break</th>
+            <td mat-cell *matCellDef="let row" class="px-2 sm:px-4 py-2 text-xs sm:text-sm md:text-base">
               <div *ngIf="row.breakDuration; else noBreak" class="flex items-center gap-1">
                 <mat-icon class="text-base">pause_circle_outline</mat-icon>
                 <span>{{ row.breakDuration }}</span>
@@ -84,22 +91,28 @@
           </ng-container>
 
           <ng-container matColumnDef="workedTime">
-            <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Worked</th>
-            <td mat-cell *matCellDef="let row" class="px-4 py-2">
+            <th mat-header-cell *matHeaderCellDef
+              class="px-2 sm:px-4 py-2 bg-black bg-opacity-30 font-semibold text-xs sm:text-sm md:text-base">
+              Worked</th>
+            <td mat-cell *matCellDef="let row" class="px-2 sm:px-4 py-2 text-xs sm:text-sm md:text-base">
               {{ getWorkedTime(row) }}
             </td>
           </ng-container>
 
           <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Status</th>
-            <td mat-cell *matCellDef="let row" class="px-4 py-2">
+            <th mat-header-cell *matHeaderCellDef
+              class="px-2 sm:px-4 py-2 bg-black bg-opacity-30 font-semibold text-xs sm:text-sm md:text-base">
+              Status</th>
+            <td mat-cell *matCellDef="let row" class="px-2 sm:px-4 py-2 text-xs sm:text-sm md:text-base">
               {{ row.startTime || row.endTime || row.breakDuration ? row.status : 'incomplete' }}
             </td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef class="px-4 py-2 bg-black bg-opacity-30 font-semibold">Actions</th>
-            <td mat-cell *matCellDef="let row" class="px-4 py-2">
+            <th mat-header-cell *matHeaderCellDef
+              class="px-2 sm:px-4 py-2 bg-black bg-opacity-30 font-semibold text-xs sm:text-sm md:text-base">
+              Actions</th>
+            <td mat-cell *matCellDef="let row" class="px-2 sm:px-4 py-2 text-xs sm:text-sm md:text-base">
               <div class="flex flex-col sm:flex-row md:flex-wrap lg:flex-nowrap gap-2">
                 <button mat-icon-button color="primary" (click)="onEdit(row)">
                   <mat-icon>edit</mat-icon>
