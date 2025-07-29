@@ -77,4 +77,10 @@ export class AddEditModal {
     return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
   }
 
+  isBreakFormatValid(): boolean {
+  const value = this.form.get('breakDuration')?.value;
+  if (!value) return true;
+  return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
+}
+
 }

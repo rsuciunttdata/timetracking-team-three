@@ -194,6 +194,7 @@ export class TimesheetTable implements OnInit {
   selectedDate = signal<Date | null>(null);
 
   onCalendarDateSelect(date: Date | null) {
+    // functie de get pt luna + sapt cu requesturi, tine cont de view
     if (!date) return;
 
     const range = this.getWeekRangeFor(date);
