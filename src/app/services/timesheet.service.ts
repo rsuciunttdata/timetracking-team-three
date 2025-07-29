@@ -13,9 +13,6 @@ export interface TimesheetEntry {
   status: 'draft' | 'submitted';
 }
 
-const USE_MOCK = true;
-const STORAGE_KEY = 'mock-timesheets';
-
 @Injectable({ providedIn: 'root' })
 export class TimeSheetService {
   private entries = signal<TimesheetEntry[]>([]);
@@ -26,60 +23,18 @@ export class TimeSheetService {
   ) { }
 
   private get currentUserId(): number | null {
-    if (USE_MOCK) return 2;
-    return this.authService.getUserId();
-  }
-
-  private loadFromStorage(): TimesheetEntry[] {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  }
-
-  private saveToStorage(allEntries: TimesheetEntry[]) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(allEntries));
+    const USE_MOCK = true
+    return USE_MOCK ? 2 : this.authService.getUserId();
   }
 
   async loadData(): Promise<void> {
-
-    this.entries.set([]); // clear first for test
-
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    const userId = 2;
+    const userId = this.currentUserId;
     if (userId === null) return;
 
-    if (USE_MOCK) {
-    let storageEntries: TimesheetEntry[] = this.loadFromStorage();
-    let jsonEntries: TimesheetEntry[] = [];
-
-    try {
-      const response = await fetch('/timesheet.mock.json');
-      jsonEntries = await response.json();
-    } catch (err) {
-      console.error('Failed to load mock JSON:', err);
-    }
-
-   
-    const combined = [...jsonEntries, ...storageEntries];
-    const uniqueEntriesMap = new Map<number, TimesheetEntry>();
-    for (const entry of combined) {
-      uniqueEntriesMap.set(entry.id, entry); 
-    }
-
-    const allEntries = Array.from(uniqueEntriesMap.values());
-
-    this.saveToStorage(allEntries);
-    const userEntries = allEntries.filter(e => e.userId === userId);
-    this.entries.set(userEntries);
-  }else {
-      try {
-        const result = await firstValueFrom(
-          this.http.get<TimesheetEntry[]>(`/api/timesheets?userId=${userId}`)
-        );
-        this.entries.set(result);
-      } catch (err) {
-        console.error('Failed to load timesheet from backend:', err);
-      }
-    }
+    const result = await firstValueFrom(
+      this.http.get<TimesheetEntry[]>(`/api/timesheets?userId=${userId}`)
+    );
+    this.entries.set(result);
   }
 
   getEntries() {
@@ -90,69 +45,23 @@ export class TimeSheetService {
     const userId = this.currentUserId;
     if (userId === null) return;
 
-    if (USE_MOCK) {
-      const allEntries = this.loadFromStorage();
-      const newEntry: TimesheetEntry = {
-        ...entry,
-        id: Date.now(),
-        userId,
-        status: 'draft'
-      };
-      const updatedEntries = [...allEntries, newEntry];
-      this.saveToStorage(updatedEntries);
-
-      // Actualizează doar pentru user-ul curent în Signal
-      const userEntries = updatedEntries.filter(e => e.userId === userId);
-      this.entries.set(userEntries);
-    } else {
-      try {
-        const result = await firstValueFrom(
-          this.http.post<TimesheetEntry>('/api/timesheets', { ...entry, userId })
-        );
-        this.entries.update(e => [...e, result]);
-      } catch (err) {
-        console.error('Failed to add entry to backend:', err);
-      }
-    }
+    const result = await firstValueFrom(
+      this.http.post<TimesheetEntry>('/api/timesheets', { ...entry, userId })
+    );
+    this.entries.update(e => [...e, result]);
   }
 
   async updateEntry(id: number, updated: Partial<TimesheetEntry>) {
-    if (USE_MOCK) {
-      const allEntries = this.loadFromStorage();
-      const newList = allEntries.map(e => (e.id === id ? { ...e, ...updated } : e));
-      this.saveToStorage(newList);
-
-      const userEntries = newList.filter(e => e.userId === this.currentUserId);
-      this.entries.set(userEntries);
-    } else {
-      try {
-        const result = await firstValueFrom(
-          this.http.put<TimesheetEntry>(`/api/timesheets/${id}`, updated)
-        );
-        this.entries.update(list =>
-          list.map(e => (e.id === id ? result : e))
-        );
-      } catch (err) {
-        console.error('Failed to update entry:', err);
-      }
-    }
+    const result = await firstValueFrom(
+      this.http.put<TimesheetEntry>(`/api/timesheets/${id}`, updated)
+    );
+    this.entries.update(list =>
+      list.map(e => (e.id === id ? result : e))
+    );
   }
 
   async deleteEntry(id: number) {
-    if (USE_MOCK) {
-      const allEntries = this.loadFromStorage();
-      const filtered = allEntries.filter(e => e.id !== id);
-      this.saveToStorage(filtered);
-
-      const userEntries = filtered.filter(e => e.userId === this.currentUserId);
-      this.entries.set(userEntries);
-    } else {
-      try {
-        await firstValueFrom(this.http.delete(`/api/timesheets/${id}`));
-        this.entries.update(list => list.filter(e => e.id !== id));
-      } catch (err) {
-        console.error('Failed to delete entry:', err);
-      }
-    }
+    await firstValueFrom(this.http.delete(`/api/timesheets/${id}`));
+    this.entries.update(list => list.filter(e => e.id !== id));
   }
 }
