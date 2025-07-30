@@ -20,8 +20,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     CommonModule, FormsModule,
     MatTableModule, MatButtonModule,
     MatIconModule, MatFormFieldModule,
-    MatInputModule, MatDatepickerModule, MatNativeDateModule, MatProgressSpinnerModule
-  ],
+    MatInputModule, MatDatepickerModule, MatNativeDateModule, MatProgressSpinnerModule],
   templateUrl: './timesheet-table.html',
   styleUrl: './timesheet-table.css'
 })
