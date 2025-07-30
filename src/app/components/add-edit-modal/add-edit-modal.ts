@@ -3,15 +3,17 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, } from '@angular/forms';
 import { CommonModule, } from '@angular/common';
 import { TimesheetEntry, TimeSheetService } from '../../services/timesheet.service';
+import { ValidationMessage } from "../validation-message/validation-message";
 @Component({
   selector: 'app-add-edit-modal',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ValidationMessage],
   templateUrl: './add-edit-modal.html',
   styleUrl: './add-edit-modal.css'
 })
 export class AddEditModal {
   isEdit = false;
   form: FormGroup;
+  validationMessage = '';
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: TimesheetEntry | null, private fb: FormBuilder, private dialogRef: MatDialogRef<AddEditModal>, private timesheetService: TimeSheetService) {
     console.log('MODAL opened with data:', data);
@@ -45,6 +47,7 @@ export class AddEditModal {
   async onSubmit() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.validationMessage = 'Please complete all required fields.';
       return;
     }
 
@@ -53,12 +56,14 @@ export class AddEditModal {
     console.log('Form submission:', formData);
 
     const breakVal = this.form.get('breakDuration')?.value;
+
     if (!this.isValidTimeFormat(breakVal)) {
+      this.validationMessage = 'Break duration must be in hh:mm format (e.g. 01:30)';
       return;
     }
 
     if (!this.validateTimeRange()) {
-      alert('End time must be after start time.');
+      this.validationMessage = 'End time must be after start time.';
       return;
     }
 
@@ -74,6 +79,7 @@ export class AddEditModal {
       this.dialogRef.close('saved');
     } catch (err) {
       console.error('Eroare la salvare:', err);
+      this.validationMessage = 'Unexpected error. Please try again.';
     }
   }
 
