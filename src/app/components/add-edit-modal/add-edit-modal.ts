@@ -54,7 +54,11 @@ export class AddEditModal {
 
     const breakVal = this.form.get('breakDuration')?.value;
     if (!this.isValidTimeFormat(breakVal)) {
-      alert('Break duration must be in hh:mm format');
+      return;
+    }
+
+    if (!this.validateTimeRange()) {
+      alert('End time must be after start time.');
       return;
     }
 
@@ -78,9 +82,9 @@ export class AddEditModal {
   }
 
   isBreakFormatValid(): boolean {
-  const value = this.form.get('breakDuration')?.value;
-  if (!value) return true;
-  return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
-}
+    const value = this.form.get('breakDuration')?.value;
+    if (!value) return true;
+    return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
+  }
 
 }
