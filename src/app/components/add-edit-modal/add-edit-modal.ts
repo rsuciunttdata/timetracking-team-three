@@ -70,7 +70,6 @@ export class AddEditModal {
       }
     }
 
-
     const breakVal = this.form.get('breakDuration')?.value;
 
     if (!this.isValidTimeFormat(breakVal)) {
@@ -80,6 +79,12 @@ export class AddEditModal {
 
     if (!this.validateTimeRange()) {
       this.showValidationMessage('End time must be after start time.');
+      return;
+    }
+
+    const timeValidationError = this.validateWorkedTimeLogic();
+    if (timeValidationError) {
+      this.validationMessage = timeValidationError;
       return;
     }
 
@@ -114,6 +119,30 @@ export class AddEditModal {
     const value = this.form.get('breakDuration')?.value;
     if (!value) return true;
     return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
+  }
+
+  private validateWorkedTimeLogic(): string | null {
+    const start = this.form.get('startTime')?.value;
+    const end = this.form.get('endTime')?.value;
+    const breakVal = this.form.get('breakDuration')?.value;
+
+    if (!start || !end || !breakVal) return 'Missing time fields.';
+
+    const [sh, sm] = start.split(':').map(Number);
+    const [eh, em] = end.split(':').map(Number);
+    const [bh, bm] = breakVal.split(':').map(Number);
+
+    const startMinutes = sh * 60 + sm;
+    const endMinutes = eh * 60 + em;
+    const breakMinutes = bh * 60 + bm;
+
+    const totalSpan = endMinutes - startMinutes;
+
+    if (breakMinutes >= totalSpan) {
+      return 'Break time cannot exceed or equal total shift time.';
+    }
+
+    return null;
   }
 
 }
