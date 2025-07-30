@@ -55,6 +55,22 @@ export class AddEditModal {
 
     console.log('Form submission:', formData);
 
+    const selectedDateStr = new Date(formData.date).toISOString().split('T')[0];
+
+    if (!this.isEdit) {
+      const existingEntry = this.timesheetService.getEntries()().find(entry => {
+        const entryDateStr = new Date(entry.date).toISOString().split('T')[0];
+        return entryDateStr === selectedDateStr &&
+          (entry.startTime || entry.endTime || entry.breakDuration);
+      });
+
+      if (existingEntry) {
+        this.showValidationMessage('A timesheet already exists for this date. Please edit it instead.');
+        return;
+      }
+    }
+
+
     const breakVal = this.form.get('breakDuration')?.value;
 
     if (!this.isValidTimeFormat(breakVal)) {
