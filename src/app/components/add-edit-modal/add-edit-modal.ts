@@ -66,7 +66,6 @@ export class AddEditModal {
       this.validationMessage = 'End time must be after start time.';
       return;
     }
-
     try {
       if (this.isEdit && this.data?.id != null) {
 
