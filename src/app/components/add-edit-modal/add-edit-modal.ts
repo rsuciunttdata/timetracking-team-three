@@ -47,7 +47,7 @@ export class AddEditModal {
   async onSubmit() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.validationMessage = 'Please complete all required fields.';
+      this.showValidationMessage('Please complete all required fields.');
       return;
     }
 
@@ -58,14 +58,15 @@ export class AddEditModal {
     const breakVal = this.form.get('breakDuration')?.value;
 
     if (!this.isValidTimeFormat(breakVal)) {
-      this.validationMessage = 'Break duration must be in hh:mm format (e.g. 01:30)';
+      this.showValidationMessage('Break duration must be in hh:mm format (e.g. 01:30)');
       return;
     }
 
     if (!this.validateTimeRange()) {
-      this.validationMessage = 'End time must be after start time.';
+      this.showValidationMessage('End time must be after start time.');
       return;
     }
+
     try {
       if (this.isEdit && this.data?.id != null) {
 
@@ -78,8 +79,15 @@ export class AddEditModal {
       this.dialogRef.close('saved');
     } catch (err) {
       console.error('Eroare la salvare:', err);
-      this.validationMessage = 'Unexpected error. Please try again.';
+      this.showValidationMessage('Unexpected error. Please try again.');
     }
+  }
+
+  showValidationMessage(msg: string) {
+    this.validationMessage = '';
+    setTimeout(() => {
+      this.validationMessage = msg;
+    }, 0);
   }
 
   private isValidTimeFormat(value: string): boolean {
