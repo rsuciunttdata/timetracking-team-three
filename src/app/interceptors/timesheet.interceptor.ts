@@ -15,7 +15,7 @@ const USE_MOCK = true;
 const STORAGE_KEY = 'mock-timesheets';
 const MOCK_JSON_PATH = '/timesheet.mock.json';
 const MOCK_USER_ID = 2;
-const MOCK_DELAY = 300; 
+const MOCK_DELAY = 300;
 
 function getStored(): TimesheetEntry[] {
   try {
@@ -44,6 +44,22 @@ function mergeJsonAndStorage(json: TimesheetEntry[], storage: TimesheetEntry[]):
   const merged = Array.from(unique.values());
   setStored(merged);
   return merged;
+}
+
+function getWeekRange(dateStr: string): { from: string, to: string } {
+  const date = new Date(dateStr);
+  const day = date.getDay(); // 0 - sunday
+  const diffToSunday = day;
+  const sunday = new Date(date);
+  
+  sunday.setDate(date.getDate() - diffToSunday);
+  const saturday = new Date(sunday);
+  saturday.setDate(sunday.getDate() + 6);
+
+  return {
+    from: sunday.toISOString().split('T')[0],
+    to: saturday.toISOString().split('T')[0]
+  };
 }
 
 @Injectable()
@@ -130,14 +146,14 @@ export class TimesheetInterceptor implements HttpInterceptor {
 
   private handlePost(req: HttpRequest<any>): Observable<HttpEvent<any>> {
     const requestBody = req.body;
-    
+
     if (!requestBody) {
       return throwError(() => new Error('Request body is required for POST'));
     }
 
     const userId = requestBody.userId ?? MOCK_USER_ID;
     const entries = getStored();
-    
+
     if (!this.isValidTimesheetEntry(requestBody)) {
       return throwError(() => new Error('Invalid timesheet entry data'));
     }
@@ -182,7 +198,7 @@ export class TimesheetInterceptor implements HttpInterceptor {
   private handleDelete(req: HttpRequest<any>, url: string): Observable<HttpEvent<any>> {
     const id = this.extractIdFromUrl(url);
     const entries = getStored();
-    
+
     const initialLength = entries.length;
     const filtered = entries.filter(e => e.id !== id);
 
@@ -211,7 +227,7 @@ export class TimesheetInterceptor implements HttpInterceptor {
       return parseInt(userIdParam, 10);
     }
 
-   
+
     return MOCK_USER_ID;
   }
 
@@ -219,11 +235,11 @@ export class TimesheetInterceptor implements HttpInterceptor {
     const parts = url.split('/');
     const idPart = parts[parts.length - 1].split('?')[0];
     const id = parseInt(idPart, 10);
-    
+
     if (isNaN(id)) {
       throw new Error(`Invalid ID in URL: ${url}`);
     }
-    
+
     return id;
   }
 
