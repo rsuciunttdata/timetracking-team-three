@@ -20,8 +20,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     CommonModule, FormsModule,
     MatTableModule, MatButtonModule,
     MatIconModule, MatFormFieldModule,
-    MatInputModule, MatDatepickerModule, MatNativeDateModule, MatProgressSpinnerModule
-  ],
+    MatInputModule, MatDatepickerModule, MatNativeDateModule, MatProgressSpinnerModule],
   templateUrl: './timesheet-table.html',
   styleUrl: './timesheet-table.css'
 })
@@ -101,21 +100,21 @@ export class TimesheetTable implements OnInit {
   getWorkedTime(entry: TimesheetEntry): string {
     if (!entry.startTime || !entry.endTime) return ' ';
 
-      const [startHour, startMin] = entry.startTime.split(':').map(Number);
-      const [endHour, endMin] = entry.endTime.split(':').map(Number);
+    const [startHour, startMin] = entry.startTime.split(':').map(Number);
+    const [endHour, endMin] = entry.endTime.split(':').map(Number);
 
-      let breakHour = 0;
-      let breakMin = 0;
+    let breakHour = 0;
+    let breakMin = 0;
 
-      if (entry.breakDuration && entry.breakDuration.includes(':')) {
-        [breakHour, breakMin] = entry.breakDuration.split(':').map(Number);
-      }
-      const totalMinutes =
-        (endHour * 60 + endMin) - (startHour * 60 + startMin) - (breakHour * 60 + breakMin);
-      const h = Math.floor(totalMinutes / 60).toString().padStart(2, '0');
-      const m = (totalMinutes % 60).toString().padStart(2, '0');
-      return `${h}:${m}`;
+    if (entry.breakDuration && entry.breakDuration.includes(':')) {
+      [breakHour, breakMin] = entry.breakDuration.split(':').map(Number);
     }
+    const totalMinutes =
+      (endHour * 60 + endMin) - (startHour * 60 + startMin) - (breakHour * 60 + breakMin);
+    const h = Math.floor(totalMinutes / 60).toString().padStart(2, '0');
+    const m = (totalMinutes % 60).toString().padStart(2, '0');
+    return `${h}:${m}`;
+  }
 
 
   onEdit(entry: TimesheetEntry) {
@@ -194,6 +193,7 @@ export class TimesheetTable implements OnInit {
   selectedDate = signal<Date | null>(null);
 
   onCalendarDateSelect(date: Date | null) {
+    // functie de get pt luna + sapt cu requesturi, tine cont de view
     if (!date) return;
 
     const range = this.getWeekRangeFor(date);
