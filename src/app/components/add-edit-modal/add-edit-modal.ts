@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, } from '@angul
 import { CommonModule, } from '@angular/common';
 import { TimesheetEntry, TimeSheetService } from '../../services/timesheet.service';
 import { ValidationMessage } from "../validation-message/validation-message";
+import { workedTimeValidator } from '../custom-validators/custom-validators';
 @Component({
   selector: 'app-add-edit-modal',
   imports: [CommonModule, ReactiveFormsModule, ValidationMessage],
@@ -24,8 +25,13 @@ export class AddEditModal {
       startTime: [data?.startTime || '', Validators.required],
       endTime: [data?.endTime || '', Validators.required],
       breakDuration: [data?.breakDuration || '', Validators.required]
+    }, {
+      updateOn: 'blur',
+      validators: [workedTimeValidator()]
     });
-
+    if (this.isEdit) {
+      this.form.get('date')?.disable();
+    }
   }
 
   validateTimeRange(): boolean {
@@ -82,11 +88,11 @@ export class AddEditModal {
       return;
     }
 
-    const timeValidationError = this.validateWorkedTimeLogic();
-    if (timeValidationError) {
-      this.validationMessage = timeValidationError;
-      return;
-    }
+    // const timeValidationError = this.validateWorkedTimeLogic();
+    // if (timeValidationError) {
+    //   this.validationMessage = timeValidationError;
+    //   return;
+    // }
 
     try {
       if (this.isEdit && this.data?.id != null) {
@@ -121,28 +127,28 @@ export class AddEditModal {
     return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
   }
 
-  private validateWorkedTimeLogic(): string | null {
-    const start = this.form.get('startTime')?.value;
-    const end = this.form.get('endTime')?.value;
-    const breakVal = this.form.get('breakDuration')?.value;
+  // private validateWorkedTimeLogic(): string | null {
+  //   const start = this.form.get('startTime')?.value;
+  //   const end = this.form.get('endTime')?.value;
+  //   const breakVal = this.form.get('breakDuration')?.value;
 
-    if (!start || !end || !breakVal) return 'Missing time fields.';
+  //   if (!start || !end || !breakVal) return 'Missing time fields.';
 
-    const [sh, sm] = start.split(':').map(Number);
-    const [eh, em] = end.split(':').map(Number);
-    const [bh, bm] = breakVal.split(':').map(Number);
+  //   const [sh, sm] = start.split(':').map(Number);
+  //   const [eh, em] = end.split(':').map(Number);
+  //   const [bh, bm] = breakVal.split(':').map(Number);
 
-    const startMinutes = sh * 60 + sm;
-    const endMinutes = eh * 60 + em;
-    const breakMinutes = bh * 60 + bm;
+  //   const startMinutes = sh * 60 + sm;
+  //   const endMinutes = eh * 60 + em;
+  //   const breakMinutes = bh * 60 + bm;
 
-    const totalSpan = endMinutes - startMinutes;
+  //   const totalSpan = endMinutes - startMinutes;
 
-    if (breakMinutes >= totalSpan) {
-      return 'Break time cannot exceed or equal total shift time.';
-    }
+  //   if (breakMinutes >= totalSpan) {
+  //     return 'Break time cannot exceed or equal total shift time.';
+  //   }
 
-    return null;
-  }
+  //   return null;
+  // }
 
 }
