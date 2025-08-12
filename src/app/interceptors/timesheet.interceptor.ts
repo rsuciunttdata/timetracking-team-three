@@ -14,7 +14,7 @@ import { TimesheetEntry } from '../services/timesheet.service';
 const USE_MOCK = true;
 const STORAGE_KEY = 'mock-timesheets';
 const MOCK_JSON_PATH = '/timesheet.mock.json';
-const MOCK_USER_ID = 2;
+const MOCK_USER_ID = '5c421851-df7e-440f-a93e-a4d98576ef7f'; 
 const MOCK_DELAY = 300; 
 
 function getStored(): TimesheetEntry[] {
@@ -196,19 +196,19 @@ export class TimesheetInterceptor implements HttpInterceptor {
     return of(new HttpResponse({ status: 204, body: null }));
   }
 
-  private extractUserIdFromRequest(req: HttpRequest<any>): number {
+  private extractUserIdFromRequest(req: HttpRequest<any>): string {
     const urlParts = req.url.split('?');
     if (urlParts.length > 1) {
       const params = new URLSearchParams(urlParts[1]);
       const userId = params.get('userId');
       if (userId) {
-        return parseInt(userId, 10);
+        return userId;
       }
     }
 
     const userIdParam = req.params.get('userId');
     if (userIdParam) {
-      return parseInt(userIdParam, 10);
+      return userIdParam;
     }
 
    
