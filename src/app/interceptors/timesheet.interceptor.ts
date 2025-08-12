@@ -14,8 +14,8 @@ import { TimesheetEntry } from '../services/timesheet.service';
 const USE_MOCK = true;
 const STORAGE_KEY = 'mock-timesheets';
 const MOCK_JSON_PATH = '/timesheet.mock.json';
-const MOCK_USER_ID = '5c421851-df7e-440f-a93e-a4d98576ef7f'; 
-const MOCK_DELAY = 300; 
+const MOCK_USER_ID = '5c421851-df7e-440f-a93e-a4d98576ef7f';
+const MOCK_DELAY = 300;
 
 function getStored(): TimesheetEntry[] {
   try {
@@ -71,6 +71,11 @@ function getMonthRange(dateStr: string): { from: string, to: string } {
     from: start.toISOString().split('T')[0],
     to: end.toISOString().split('T')[0]
   };
+}
+
+function extractDateFromUrl(url: string): string | null {
+  const m = url.match(/\/(weekly|monthly)\/by-date\/(\d{4}-\d{2}-\d{2})(?:$|\?)/);
+  return m ? m[2] : null;
 }
 
 @Injectable()
