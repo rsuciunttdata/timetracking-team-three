@@ -107,7 +107,9 @@ export class TimesheetInterceptor implements HttpInterceptor {
   }
 
   private isTimesheetRequest(url: string): boolean {
-    return url.includes('/api/timesheets');
+    return url.includes('/api/timesheets') ||
+      /\/weekly\/by-date\/\d{4}-\d{2}-\d{2}(?:$|\?)/.test(url) ||
+      /\/monthly\/by-date\/\d{4}-\d{2}-\d{2}(?:$|\?)/.test(url);
   }
 
   private handleMockRequest(req: HttpRequest<any>): Observable<HttpEvent<any>> {
