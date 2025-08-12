@@ -1,7 +1,7 @@
 [
     {
         "id": 1,
-        "userId": 2,
+        "userId": "59b52110-4571-46da-b0c3-848abd580f71",
         "date": "2025-06-30",
         "startTime": "08:00",
         "endTime": "16:30",
@@ -10,111 +10,200 @@
     },
     {
         "id": 2,
-        "userId": 2,
-        "date": "2025-07-01",
-        "startTime": "09:00",
-        "endTime": "17:00",
-        "breakDuration": "00:45",
-        "status": "draft"
-    },
-    {
-        "id": 3,
-        "userId": 2,
-        "date": "2025-07-02",
-        "startTime": "08:15",
-        "endTime": "16:00",
-        "breakDuration": "00:30",
-        "status": "submitted"
-    },
-    {
-        "id": 4,
-        "userId": 2,
-        "date": "2025-07-03",
-        "startTime": "07:45",
-        "endTime": "15:30",
-        "breakDuration": "00:20",
-        "status": "draft"
-    },
-    {
-        "id": 5,
-        "userId": 2,
-        "date": "2025-07-04",
-        "startTime": "09:00",
-        "endTime": "17:00",
-        "breakDuration": "01:00",
-        "status": "submitted"
-    },
-    {
-        "id": 1,
-        "userId": 2,
-        "date": "2025-07-20",
+        "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+        "date": "2025-06-30",
         "startTime": "08:00",
         "endTime": "16:30",
         "breakDuration": "00:30",
         "status": "submitted"
     },
-    {
-        "id": 2,
-        "userId": 2,
-        "date": "2025-07-21",
-        "startTime": "09:00",
-        "endTime": "17:00",
-        "breakDuration": "00:45",
-        "status": "draft"
-    },
-    {
-        "id": 3,
-        "userId": 2,
-        "date": "2025-07-22",
-        "startTime": "08:15",
-        "endTime": "16:00",
-        "breakDuration": "00:30",
-        "status": "submitted"
-    },
-    {
-        "id": 4,
-        "userId": 2,
-        "date": "2025-07-23",
-        "startTime": "07:45",
-        "endTime": "15:30",
-        "breakDuration": "00:20",
-        "status": "draft"
-    },
-    {
-        "id": 5,
-        "userId": 2,
-        "date": "2025-07-24",
-        "startTime": "09:00",
-        "endTime": "17:00",
-        "breakDuration": "01:00",
-        "status": "submitted"
-    },
-    {
-        "id": 4,
-        "userId": 2,
-        "date": "2025-07-24",
-        "startTime": "07:45",
-        "endTime": "15:30",
-        "breakDuration": "00:20",
-        "status": "draft"
-    },
-    {
-        "id": 5,
-        "userId": 2,
-        "date": "2025-07-25",
-        "startTime": "09:00",
-        "endTime": "17:00",
-        "breakDuration": "01:00",
-        "status": "submitted"
-    }
-    ,
-    {
-        "id": 5,
-        "userId": 2,
-        "date": "2025-07-26",
-        "startTime": "09:00",
-        "endTime": "17:00",
-        "breakDuration": "01:00",
-        "status": "submitted"
-    }
+     {
+    "id": 3,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-01",
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "breakDuration": "00:45",
+    "status": "draft"
+  },
+  {
+    "id": 4,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-04",
+    "startTime": "08:30",
+    "endTime": "16:30",
+    "breakDuration": "00:30",
+    "status": "submitted"
+  },
+  {
+    "id": 5,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-05",
+    "startTime": "10:00",
+    "endTime": "18:00",
+    "breakDuration": "00:50",
+    "status": "submitted"
+  },
+  {
+    "id": 6,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-06",
+    "startTime": "08:15",
+    "endTime": "16:15",
+    "breakDuration": "00:20",
+    "status": "draft"
+  },
+  {
+    "id": 7,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-07",
+    "startTime": "09:30",
+    "endTime": "17:30",
+    "breakDuration": "00:40",
+    "status": "submitted"
+  },
+  {
+    "id": 8,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-08",
+    "startTime": "11:00",
+    "endTime": "19:00",
+    "breakDuration": "00:25",
+    "status": "draft"
+  },
+  {
+    "id": 9,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-11",
+    "startTime": "08:00",
+    "endTime": "16:00",
+    "breakDuration": "00:35",
+    "status": "submitted"
+  },
+  {
+    "id": 10,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-12",
+    "startTime": "10:15",
+    "endTime": "18:15",
+    "breakDuration": "00:50",
+    "status": "submitted"
+  },
+  {
+    "id": 11,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-13",
+    "startTime": "09:00",
+    "endTime": "17:30",
+    "breakDuration": "00:55",
+    "status": "draft"
+  },
+  {
+    "id": 12,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-14",
+    "startTime": "08:45",
+    "endTime": "16:45",
+    "breakDuration": "00:30",
+    "status": "submitted"
+  },
+  {
+    "id": 13,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-15",
+    "startTime": "12:00",
+    "endTime": "20:00",
+    "breakDuration": "01:00",
+    "status": "draft"
+  },
+  {
+    "id": 14,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-18",
+    "startTime": "08:30",
+    "endTime": "16:00",
+    "breakDuration": "00:20",
+    "status": "submitted"
+  },
+  {
+    "id": 15,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-19",
+    "startTime": "09:45",
+    "endTime": "17:15",
+    "breakDuration": "00:40",
+    "status": "submitted"
+  },
+  {
+    "id": 16,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-20",
+    "startTime": "08:00",
+    "endTime": "16:00",
+    "breakDuration": "00:30",
+    "status": "draft"
+  },
+  {
+    "id": 17,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-21",
+    "startTime": "10:00",
+    "endTime": "18:00",
+    "breakDuration": "00:35",
+    "status": "submitted"
+  },
+  {
+    "id": 18,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-22",
+    "startTime": "08:30",
+    "endTime": "16:30",
+    "breakDuration": "00:45",
+    "status": "draft"
+  },
+  {
+    "id": 19,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-25",
+    "startTime": "09:15",
+    "endTime": "17:15",
+    "breakDuration": "00:50",
+    "status": "submitted"
+  },
+  {
+    "id": 20,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-26",
+    "startTime": "08:00",
+    "endTime": "16:00",
+    "breakDuration": "00:30",
+    "status": "draft"
+  },
+  {
+    "id": 21,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-27",
+    "startTime": "10:30",
+    "endTime": "18:30",
+    "breakDuration": "00:25",
+    "status": "submitted"
+  },
+  {
+    "id": 22,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-28",
+    "startTime": "08:45",
+    "endTime": "16:45",
+    "breakDuration": "00:30",
+    "status": "draft"
+  },
+  {
+    "id": 23,
+    "userId": "5c421851-df7e-440f-a93e-a4d98576ef7f",
+    "date": "2025-08-29",
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "breakDuration": "01:00",
+    "status": "submitted"
+  }
 ]

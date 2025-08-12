@@ -3,7 +3,7 @@ import { Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
 export interface User {
-  id: number;
+  id: string;
   email: string;
   password: string;
   role: 'user' | 'manager';
@@ -62,7 +62,7 @@ export class AuthService {
     return this.currentUser.asReadonly();
   }
 
-  getUserId(): number | null {
+  getUserId(): string | null {
     return this.currentUser()?.id ?? null;
   }
 

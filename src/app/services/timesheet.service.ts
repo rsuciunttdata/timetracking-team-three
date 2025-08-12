@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 
 export interface TimesheetEntry {
   id: number;
-  userId: number;
+  userId: string;
   date: string;
   startTime: string;
   endTime: string;
@@ -22,9 +22,9 @@ export class TimeSheetService {
     private authService: AuthService
   ) { }
 
-  private get currentUserId(): number | null {
+  private get currentUserId(): string | null {
     const USE_MOCK = true
-    return USE_MOCK ? 2 : this.authService.getUserId();
+    return USE_MOCK ? '5c421851-df7e-440f-a93e-a4d98576ef7f' : this.authService.getUserId();
   }
 
   async loadData(): Promise<void> {
