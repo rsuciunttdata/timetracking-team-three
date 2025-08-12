@@ -115,10 +115,10 @@
                 <button mat-icon-button color="primary" (click)="onEdit(row)" [disabled]="!row.id">
                   <mat-icon>edit</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" (click)="onDelete(row.id)" [disabled]="!row.id ">
+                <button mat-icon-button color="warn" (click)="showDeleteToast(row.date)" [disabled]="!row.id">
                   <mat-icon>delete_outline</mat-icon>
                 </button>
-                <button mat-icon-button color="accent" (click)="onDelete(row.id)" [disabled]="!row.id">
+                <button mat-icon-button color="accent" (click)="onDelete(row.date)" [disabled]="!row.id">
                   <mat-icon>done_outline</mat-icon>
                 </button>
               </div>

@@ -143,29 +143,26 @@ export class TimesheetTable implements OnInit {
     });
   }
 
-  async onDelete(id: number) {
-    if (!id) return;
+  async onDelete(date: string) {
+    if (!date) return;
 
-    const confirmed = confirm('Are you sure you want to delete this entry?');
-
-    if (confirmed) {
-      await this.timesheetService.deleteEntry(id);
-      this.timesheetEntries = this.timesheetService.getEntries()();
-    }
+    this.toastVisible = true;
+    this.toastIdToDelete = date;
   }
 
   toastVisible = false;
-  toastIdToDelete: number | null = null;
+  toastIdToDelete: string | null = null;
 
-  showDeleteToast(id: number) {
+  showDeleteToast(date: string) {
     this.toastVisible = true;
-    this.toastIdToDelete = id;
+    this.toastIdToDelete = date;
   }
 
-  confirmDelete() {
+  async confirmDelete() {
     if (this.toastIdToDelete !== null) {
-      this.timesheetService.deleteEntry(this.toastIdToDelete);
+      await this.timesheetService.deleteEntry(this.toastIdToDelete);
       this.timesheetEntries = this.timesheetService.getEntries()();
+       await this.timesheetService.loadData();
     }
     this.toastVisible = false;
     this.toastIdToDelete = null;

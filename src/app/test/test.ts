@@ -33,13 +33,13 @@ export class Test {
 
     const entryToUpdate = this.timeSheetService.getEntries()()[0];
     if (entryToUpdate) {
-      await this.timeSheetService.updateEntry(entryToUpdate.id, { status: 'draft' });
+      await this.timeSheetService.updateEntry(entryToUpdate.date, { status: 'draft' });
       console.log('After update:', this.timeSheetService.getEntries()());
     }
 
     const entryToDelete = this.timeSheetService.getEntries()()[0];
     if (entryToDelete) {
-      await this.timeSheetService.deleteEntry(entryToDelete.id);
+      await this.timeSheetService.deleteEntry(entryToDelete.date);
       console.log('After delete:', this.timeSheetService.getEntries()());
     }
 
