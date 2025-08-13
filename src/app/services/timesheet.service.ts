@@ -37,6 +37,52 @@ export class TimeSheetService {
     this.entries.set(result);
   }
 
+  async loadByWeek(date: Date): Promise<void> {
+    const userId = this.currentUserId;
+    if (!userId) return;
+
+    const iso = date.toISOString().split('T')[0];
+    const { from, to } = this.getWeekRange(iso);
+
+    const result = await firstValueFrom(
+      this.http.get<TimesheetEntry[]>(
+        `/api/timesheets?userId=${userId}&from=${from}&to=${to}`
+      )
+    );
+    this.entries.set(result);
+  }
+
+  getWeekRange(dateStr: string): { from: string, to: string } {
+    const date = new Date(dateStr);
+    const day = date.getDay();
+    const diffToSunday = day;
+    const sunday = new Date(date);
+
+    sunday.setDate(date.getDate() - diffToSunday);
+    const saturday = new Date(sunday);
+    saturday.setDate(sunday.getDate() + 6);
+
+    return {
+      from: sunday.toISOString().split('T')[0],
+      to: saturday.toISOString().split('T')[0]
+    };
+  }
+
+  async loadByMonth(date: Date): Promise<void> {
+    const userId = this.currentUserId;
+    if (!userId) return;
+
+    const y = date.getFullYear();
+    const m = `${date.getMonth() + 1}`.padStart(2, '0');
+
+    const result = await firstValueFrom(
+      this.http.get<TimesheetEntry[]>(
+        `/api/timesheets?userId=${userId}&month=${y}-${m}`
+      )
+    );
+    this.entries.set(result);
+  }
+
   getEntries() {
     return this.entries.asReadonly();
   }

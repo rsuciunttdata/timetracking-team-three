@@ -46,33 +46,6 @@ function mergeJsonAndStorage(json: TimesheetEntry[], storage: TimesheetEntry[]):
   return merged;
 }
 
-function getWeekRange(dateStr: string): { from: string, to: string } {
-  const date = new Date(dateStr);
-  const day = date.getDay(); // 0 - sunday
-  const diffToSunday = day;
-  const sunday = new Date(date);
-
-  sunday.setDate(date.getDate() - diffToSunday);
-  const saturday = new Date(sunday);
-  saturday.setDate(sunday.getDate() + 6);
-
-  return {
-    from: sunday.toISOString().split('T')[0],
-    to: saturday.toISOString().split('T')[0]
-  };
-}
-
-function getMonthRange(dateStr: string): { from: string, to: string } {
-  const date = new Date(dateStr);
-  const start = new Date(date.getFullYear(), date.getMonth(), 1);
-  const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-
-  return {
-    from: start.toISOString().split('T')[0],
-    to: end.toISOString().split('T')[0]
-  };
-}
-
 function extractDateFromUrl(url: string): string | null {
   const m = url.match(/\/(weekly|monthly)\/by-date\/(\d{4}-\d{2}-\d{2})(?:$|\?)/);
   return m ? m[2] : null;
