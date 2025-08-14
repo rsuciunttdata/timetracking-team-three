@@ -46,15 +46,10 @@ function mergeJsonAndStorage(json: TimesheetEntry[], storage: TimesheetEntry[]):
   return merged;
 }
 
-function extractDateFromUrl(url: string): string | null {
-  const m = url.match(/\/(weekly|monthly)\/by-date\/(\d{4}-\d{2}-\d{2})(?:$|\?)/);
-  return m ? m[2] : null;
-}
-
 @Injectable()
 export class TimesheetInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (!USE_MOCK || !this.isTimesheetRequest(req.url)) {
+    if (!USE_MOCK) {
       return next.handle(req);
     }
 
@@ -79,12 +74,6 @@ export class TimesheetInterceptor implements HttpInterceptor {
     }
   }
 
-  private isTimesheetRequest(url: string): boolean {
-    return url.includes('/api/timesheets') ||
-      /\/weekly\/by-date\/\d{4}-\d{2}-\d{2}(?:$|\?)/.test(url) ||
-      /\/monthly\/by-date\/\d{4}-\d{2}-\d{2}(?:$|\?)/.test(url);
-  }
-
   private handleMockRequest(req: HttpRequest<any>): Observable<HttpEvent<any>> {
     const method = req.method;
     const url = req.url;
@@ -102,6 +91,32 @@ export class TimesheetInterceptor implements HttpInterceptor {
         return throwError(() => new Error(`Unsupported method: ${method}`));
     }
   }
+
+  private getQueryParams(url: string) {
+    const qs = url.split('?')[1] || '';
+    const p = new URLSearchParams(qs);
+    return {
+      userId: p.get('userId'),
+      from: p.get('from'),    
+      to: p.get('to'),   
+      month: p.get('month')  
+    };
+  }
+
+  private applyRangeFiltersString(list: TimesheetEntry[], url: string): TimesheetEntry[] {
+    const { from, to, month } = this.getQueryParams(url);
+
+    if (from && to) {
+      return list.filter(e => e.date >= from && e.date <= to);
+    }
+
+    if (month) {
+      return list.filter(e => e.date.startsWith(month + '-'));
+    }
+
+    return list;
+  }
+
 
   private handleGet(req: HttpRequest<any>): Observable<HttpEvent<any>> {
     const userId = this.extractUserIdFromRequest(req);
@@ -121,7 +136,8 @@ export class TimesheetInterceptor implements HttpInterceptor {
           .then((jsonEntries: TimesheetEntry[]) => {
             const merged = mergeJsonAndStorage(jsonEntries, []);
             const userEntries = merged.filter(e => e.userId === userId);
-            return new HttpResponse({ status: 200, body: userEntries });
+            const filtered = this.applyRangeFiltersString(userEntries, req.url);
+            return new HttpResponse({ status: 200, body: filtered });
           })
           .catch(error => {
             console.warn('Could not load mock JSON, using empty array:', error);
@@ -129,9 +145,9 @@ export class TimesheetInterceptor implements HttpInterceptor {
           })
       );
     } else {
-
       const userEntries = entries.filter(e => e.userId === userId);
-      return of(new HttpResponse({ status: 200, body: userEntries }));
+      const filtered = this.applyRangeFiltersString(userEntries, req.url);
+      return of(new HttpResponse({ status: 200, body: filtered }));
     }
   }
 

@@ -16,6 +16,7 @@ export interface TimesheetEntry {
 @Injectable({ providedIn: 'root' })
 export class TimeSheetService {
   private entries = signal<TimesheetEntry[]>([]);
+  private weekEntries = signal<TimesheetEntry[]>([]);
 
   constructor(
     private http: HttpClient,
@@ -37,11 +38,18 @@ export class TimeSheetService {
     this.entries.set(result);
   }
 
+  private toIsoLocal(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
   async loadByWeek(date: Date): Promise<void> {
     const userId = this.currentUserId;
     if (!userId) return;
 
-    const iso = date.toISOString().split('T')[0];
+    const iso = this.toIsoLocal(date);
     const { from, to } = this.getWeekRange(iso);
 
     const result = await firstValueFrom(
@@ -49,42 +57,30 @@ export class TimeSheetService {
         `/api/timesheets?userId=${userId}&from=${from}&to=${to}`
       )
     );
-    this.entries.set(result);
+    this.weekEntries.set(result ?? []);
   }
 
   getWeekRange(dateStr: string): { from: string, to: string } {
     const date = new Date(dateStr);
     const day = date.getDay();
-    const diffToSunday = day;
     const sunday = new Date(date);
+    sunday.setDate(date.getDate() - day);
 
-    sunday.setDate(date.getDate() - diffToSunday);
     const saturday = new Date(sunday);
     saturday.setDate(sunday.getDate() + 6);
 
-    return {
-      from: sunday.toISOString().split('T')[0],
-      to: saturday.toISOString().split('T')[0]
-    };
-  }
+    const toIso = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-  async loadByMonth(date: Date): Promise<void> {
-    const userId = this.currentUserId;
-    if (!userId) return;
-
-    const y = date.getFullYear();
-    const m = `${date.getMonth() + 1}`.padStart(2, '0');
-
-    const result = await firstValueFrom(
-      this.http.get<TimesheetEntry[]>(
-        `/api/timesheets?userId=${userId}&month=${y}-${m}`
-      )
-    );
-    this.entries.set(result);
+    return { from: toIso(sunday), to: toIso(saturday) };
   }
 
   getEntries() {
     return this.entries.asReadonly();
+  }
+
+  getWeekEntries() {
+    return this.weekEntries.asReadonly();
   }
 
   async addEntry(entry: Omit<TimesheetEntry, 'id' | 'userId'>) {

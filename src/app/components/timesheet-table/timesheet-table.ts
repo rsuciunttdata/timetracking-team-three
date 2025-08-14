@@ -29,6 +29,8 @@ export class TimesheetTable implements OnInit {
 
   entries = this.timeSheetService.getEntries();
 
+  weekEntries = this.timeSheetService.getWeekEntries();
+
   selectedRange = signal<DateRange<Date>>(new DateRange<Date>(null, null));
 
   columns: string[] = ['date', 'startTime', 'endTime', 'breakDuration', 'workedTime', 'status', 'actions'];
@@ -47,6 +49,10 @@ export class TimesheetTable implements OnInit {
       await this.timeSheetService.loadData();
 
       const today = new Date();
+      // for week test:
+      await this.timeSheetService.loadByWeek(today);
+      console.log('[cmp] weekEntries():', this.weekEntries());
+
       const range = this.getWeekRangeFor(today);
 
       this.selectedRange.set(range);
