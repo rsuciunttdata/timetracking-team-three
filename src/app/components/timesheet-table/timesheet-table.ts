@@ -30,6 +30,7 @@ export class TimesheetTable implements OnInit {
   entries = this.timeSheetService.getEntries();
 
   weekEntries = this.timeSheetService.getWeekEntries();
+  monthEntries = this.timeSheetService.getMonthEntries();
 
   selectedRange = signal<DateRange<Date>>(new DateRange<Date>(null, null));
 
@@ -50,17 +51,27 @@ export class TimesheetTable implements OnInit {
 
       const today = new Date();
       // for week test:
-      await this.timeSheetService.loadByWeek(today);
-      console.log('[cmp] weekEntries():', this.weekEntries());
+      // await this.timeSheetService.loadByWeek(today);
+      // console.log('[cmp] weekEntries():', this.weekEntries());
+
+      // for month test:
+      await this.timeSheetService.loadByMonth(today);
+      console.log('[cmp] monthEntries():', this.monthEntries());
 
       const range = this.getWeekRangeFor(today);
 
+      console.log('Calculated week range:', range);
+
       this.selectedRange.set(range);
       this.selectedDate.set(today);
+
+    } catch (err) {
+      console.error('Error in ngOnInit:', err);
     } finally {
       this.isLoading.set(false);
     }
   }
+
 
   private getWeekRangeFor(date: Date): DateRange<Date> {
     const day = date.getDay();

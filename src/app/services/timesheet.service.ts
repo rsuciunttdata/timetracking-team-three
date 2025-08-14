@@ -16,7 +16,9 @@ export interface TimesheetEntry {
 @Injectable({ providedIn: 'root' })
 export class TimeSheetService {
   private entries = signal<TimesheetEntry[]>([]);
+
   private weekEntries = signal<TimesheetEntry[]>([]);
+  private monthEntries = signal<TimesheetEntry[]>([]);
 
   constructor(
     private http: HttpClient,
@@ -75,12 +77,30 @@ export class TimeSheetService {
     return { from: toIso(sunday), to: toIso(saturday) };
   }
 
+  async loadByMonth(date: Date): Promise<void> {
+    const userId = this.currentUserId;
+    if (!userId) return;
+
+    const y = date.getFullYear();
+    const m = `${date.getMonth() + 1}`.padStart(2, '0');
+
+    const result = await firstValueFrom(
+      this.http.get<TimesheetEntry[]>(
+        `/api/timesheets?userId=${userId}&month=${y}-${m}`
+      )
+    );
+    this.monthEntries.set(result ?? []);
+  }
+
   getEntries() {
     return this.entries.asReadonly();
   }
 
   getWeekEntries() {
     return this.weekEntries.asReadonly();
+  }
+  getMonthEntries() {
+    return this.monthEntries.asReadonly();
   }
 
   async addEntry(entry: Omit<TimesheetEntry, 'id' | 'userId'>) {

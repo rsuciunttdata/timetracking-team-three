@@ -118,6 +118,7 @@ export class TimesheetInterceptor implements HttpInterceptor {
   }
 
 
+
   private handleGet(req: HttpRequest<any>): Observable<HttpEvent<any>> {
     const userId = this.extractUserIdFromRequest(req);
     const entries = getStored();
