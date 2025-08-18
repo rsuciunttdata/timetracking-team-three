@@ -53,7 +53,7 @@ export class TimeSheetService {
 
   async updateEntry(date: string, updated: Partial<TimesheetEntry>) {
     const result = await firstValueFrom(
-      this.http.put<TimesheetEntry>(`/api/timesheets/${date}`, updated)
+      this.http.patch<TimesheetEntry>(`/api/timesheets/${date}`, updated)
     );
     this.entries.update(list =>
       list.map(e => (e.date === date ? result : e))

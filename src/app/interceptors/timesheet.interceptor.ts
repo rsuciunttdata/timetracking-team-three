@@ -87,8 +87,8 @@ export class TimesheetInterceptor implements HttpInterceptor {
         return this.handleGet(req);
       case 'POST':
         return this.handlePost(req);
-      case 'PUT':
-        return this.handlePut(req, url);
+      case 'PATCH':
+        return this.handlePatch(req, url);
       case 'DELETE':
         return this.handleDelete(req, url);
       default:
@@ -156,12 +156,12 @@ export class TimesheetInterceptor implements HttpInterceptor {
     return of(new HttpResponse({ status: 201, body: newEntry }));
   }
 
-  private handlePut(req: HttpRequest<any>, url: string): Observable<HttpEvent<any>> {
+  private handlePatch(req: HttpRequest<any>, url: string): Observable<HttpEvent<any>> {
     const date = this.extractDateFromUrl(url);
     const updatedData = req.body;
 
     if (!updatedData) {
-      return throwError(() => new Error('Request body is required for PUT'));
+      return throwError(() => new Error('Request body is required for PATCH'));
     }
 
     const entries = getStored();
@@ -175,7 +175,7 @@ export class TimesheetInterceptor implements HttpInterceptor {
     entries[entryIndex] = updatedEntry;
     setStored(entries);
 
-    console.log('PUT: Updated entry with date:', date);
+    console.log('PATCH: Updated entry with date:', date);
     return of(new HttpResponse({ status: 200, body: updatedEntry }));
   }
 
