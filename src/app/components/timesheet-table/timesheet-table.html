@@ -1,11 +1,20 @@
 <div class="flex flex-col md:flex-row gap-6 p-4 sm:p-6 md:p-8 text-cutomWhite font-clash">
 
-  <div class="lg:w-1/4 w-full flex justify-center">
+  <div class="lg:w-1/4 w-full flex flex-col items-center gap-4 text-cutomWhite font-clash">
     <mat-calendar class="max-w-[320px] max-h-[380px] w-full" [selected]="selectedDate()"
       (selectedChange)="onCalendarDateSelect($event)" [dateClass]="dateClass">
     </mat-calendar>
-  </div>
 
+    <mat-form-field class="w-full max-w-[320px]"  appearance="fill" id="select-day-field">
+      <mat-label>Select day</mat-label>
+      <input matInput [matDatepicker]="dp" (dateChange)="onDateChange($event.value)">
+      <mat-datepicker #dp panelClass="text-white translate-y-[380px]" yPosition="below" xPosition="start" (opened)="scrollFieldIntoView()"></mat-datepicker>
+      <button matSuffix mat-icon-button *ngIf="selectedDate1()" aria-label="Clear" (click)="clearDate()">
+        <mat-icon>clear</mat-icon>
+      </button>
+      <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+    </mat-form-field>
+  </div>
 
   <div class="md:w-2/3 lg:w-3/4 w-full mt-6 md:mt-0">
     <ng-container *ngIf="isLoading(); else tableContent">
@@ -38,7 +47,7 @@
       </button>
 
       <div class="overflow-x-auto">
-        <table mat-table [dataSource]="filteredEntries()"
+        <table mat-table [dataSource]="tableData()"
           class="min-w-[700px] w-full mat-elevation-z2 bg-white bg-opacity-10 rounded-lg overflow-hidden text-white text-xs sm:text-sm md:text-base">
           <ng-container matColumnDef="date">
             <th mat-header-cell *matHeaderCellDef

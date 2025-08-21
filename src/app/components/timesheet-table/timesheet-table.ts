@@ -51,8 +51,8 @@ export class TimesheetTable implements OnInit {
 
       const today = new Date();
       // for week test:
-      // await this.timeSheetService.loadByWeek(today);
-      // console.log('[cmp] weekEntries():', this.weekEntries());
+      await this.timeSheetService.loadByWeek(today);
+      console.log('[cmp] weekEntries():', this.weekEntries());
 
       // for month test:
       await this.timeSheetService.loadByMonth(today);
@@ -179,7 +179,7 @@ export class TimesheetTable implements OnInit {
     if (this.toastIdToDelete !== null) {
       await this.timesheetService.deleteEntry(this.toastIdToDelete);
       this.timesheetEntries = this.timesheetService.getEntries()();
-       await this.timesheetService.loadData();
+      await this.timesheetService.loadData();
     }
     this.toastVisible = false;
     this.toastIdToDelete = null;
@@ -205,6 +205,35 @@ export class TimesheetTable implements OnInit {
 
 
   selectedDate = signal<Date | null>(null);
+  selectedDate1 = signal<Date | null>(null);
+
+  filteredEntriesByDay = computed(() => {
+    const d = this.selectedDate1();
+    if (!d) return [];            
+    const target = new Date(d); target.setHours(0, 0, 0, 0);
+    return this.entries().filter(e => {
+      const ed = new Date(e.date);
+      ed.setHours(0, 0, 0, 0);
+      return ed.getTime() === target.getTime(); // doar ziua selectată
+    });
+  });
+
+  onDateChange(date: Date | null) {
+    this.selectedDate1.set(date);
+  }
+
+  clearDate() {
+    this.selectedDate1.set(null);
+  }
+
+
+  tableData = computed(() => {
+
+  const byDay = this.filteredEntriesByDay();
+  if (byDay.length) return byDay;
+
+  return this.filteredEntries();
+});
 
   onCalendarDateSelect(date: Date | null) {
     // functie de get pt luna + sapt cu requesturi, tine cont de view
@@ -234,6 +263,12 @@ export class TimesheetTable implements OnInit {
 
     return (time >= startTime && time <= endTime) ? 'selected-range' : '';
   };
+
+  scrollFieldIntoView() {
+  const el = document.getElementById('select-day-field');
+  el?.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' as ScrollBehavior });
+}
+
 
   isWeekend(dateStr: string): boolean {
     const day = new Date(dateStr).getDay();
