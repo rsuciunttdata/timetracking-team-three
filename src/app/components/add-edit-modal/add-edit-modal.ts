@@ -57,7 +57,7 @@ export class AddEditModal {
       return;
     }
 
-    const formData = this.form.value;
+    const formData = this.form.getRawValue();
 
     console.log('Form submission:', formData);
 
@@ -95,9 +95,9 @@ export class AddEditModal {
     // }
 
     try {
-      if (this.isEdit && this.data?.id != null) {
+      if (this.isEdit && this.data?.date != null) {
 
-        await this.timesheetService.updateEntry(this.data.id, formData);
+        await this.timesheetService.updateEntry(this.data.date, formData);
       } else {
 
         await this.timesheetService.addEntry(formData);

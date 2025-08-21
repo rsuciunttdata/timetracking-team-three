@@ -113,17 +113,17 @@ export class TimeSheetService {
     this.entries.update(e => [...e, result]);
   }
 
-  async updateEntry(id: number, updated: Partial<TimesheetEntry>) {
+    async updateEntry(date: string, updated: Partial<TimesheetEntry>) {
     const result = await firstValueFrom(
-      this.http.put<TimesheetEntry>(`/api/timesheets/${id}`, updated)
+      this.http.patch<TimesheetEntry>(`/api/timesheets/${date}`, updated)
     );
     this.entries.update(list =>
-      list.map(e => (e.id === id ? result : e))
+      list.map(e => (e.date === date ? result : e))
     );
   }
 
-  async deleteEntry(id: number) {
-    await firstValueFrom(this.http.delete(`/api/timesheets/${id}`));
-    this.entries.update(list => list.filter(e => e.id !== id));
+  async deleteEntry(date: string) {
+    await firstValueFrom(this.http.delete(`/api/timesheets/${date}`));
+    this.entries.update(list => list.filter(e => e.date !== date));
   }
 }

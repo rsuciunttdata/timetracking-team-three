@@ -83,8 +83,8 @@ export class TimesheetInterceptor implements HttpInterceptor {
         return this.handleGet(req);
       case 'POST':
         return this.handlePost(req);
-      case 'PUT':
-        return this.handlePut(req, url);
+      case 'PATCH':
+        return this.handlePatch(req, url);
       case 'DELETE':
         return this.handleDelete(req, url);
       default:
@@ -180,45 +180,46 @@ export class TimesheetInterceptor implements HttpInterceptor {
     return of(new HttpResponse({ status: 201, body: newEntry }));
   }
 
-  private handlePut(req: HttpRequest<any>, url: string): Observable<HttpEvent<any>> {
-    const id = this.extractIdFromUrl(url);
+  private handlePatch(req: HttpRequest<any>, url: string): Observable<HttpEvent<any>> {
+    const date = this.extractDateFromUrl(url);
     const updatedData = req.body;
 
     if (!updatedData) {
-      return throwError(() => new Error('Request body is required for PUT'));
+      return throwError(() => new Error('Request body is required for PATCH'));
     }
 
     const entries = getStored();
-    const entryIndex = entries.findIndex(e => e.id === id);
+    const entryIndex = entries.findIndex(e => e.date === date);
 
     if (entryIndex === -1) {
-      return throwError(() => new Error(`Timesheet entry with ID ${id} not found`));
+      return throwError(() => new Error(`Timesheet entry with date ${date} not found`));
     }
 
     const updatedEntry = { ...entries[entryIndex], ...updatedData };
     entries[entryIndex] = updatedEntry;
     setStored(entries);
 
-    console.log('PUT: Updated entry with ID:', id);
+    console.log('PATCH: Updated entry with date:', date);
     return of(new HttpResponse({ status: 200, body: updatedEntry }));
   }
 
-  private handleDelete(req: HttpRequest<any>, url: string): Observable<HttpEvent<any>> {
-    const id = this.extractIdFromUrl(url);
+ private handleDelete(req: HttpRequest<any>, url: string): Observable<HttpEvent<any>> {
+    const date = this.extractDateFromUrl(url);
     const entries = getStored();
-
+    
     const initialLength = entries.length;
-    const filtered = entries.filter(e => e.id !== id);
+    const filtered = entries.filter(e => e.date !== date);
 
     if (filtered.length === initialLength) {
-      return throwError(() => new Error(`Timesheet entry with ID ${id} not found`));
+      return throwError(() => new Error(`Timesheet entry with date ${date} not found`));
     }
 
     setStored(filtered);
 
-    console.log('DELETE: Removed entry with ID:', id);
+    console.log('DELETE: Removed entry with date:', date);
     return of(new HttpResponse({ status: 204, body: null }));
   }
+
 
   private extractUserIdFromRequest(req: HttpRequest<any>): string {
     const urlParts = req.url.split('?');
@@ -239,17 +240,10 @@ export class TimesheetInterceptor implements HttpInterceptor {
     return MOCK_USER_ID;
   }
 
-  private extractIdFromUrl(url: string): number {
-    const parts = url.split('/');
-    const idPart = parts[parts.length - 1].split('?')[0];
-    const id = parseInt(idPart, 10);
-
-    if (isNaN(id)) {
-      throw new Error(`Invalid ID in URL: ${url}`);
-    }
-
-    return id;
-  }
+  private extractDateFromUrl(url: string): string {
+  const parts = url.split('/');
+  return parts[parts.length - 1].split('?')[0]; 
+}
 
   private generateId(): number {
     return Date.now() + Math.floor(Math.random() * 1000);
