@@ -29,6 +29,9 @@ export class TimesheetTable implements OnInit {
 
   entries = this.timeSheetService.getEntries();
 
+  weekEntries = this.timeSheetService.getWeekEntries();
+  monthEntries = this.timeSheetService.getMonthEntries();
+
   selectedRange = signal<DateRange<Date>>(new DateRange<Date>(null, null));
 
   columns: string[] = ['date', 'startTime', 'endTime', 'breakDuration', 'workedTime', 'status', 'actions'];
@@ -47,14 +50,28 @@ export class TimesheetTable implements OnInit {
       await this.timeSheetService.loadData();
 
       const today = new Date();
+      // for week test:
+      await this.timeSheetService.loadByWeek(today);
+      console.log('[cmp] weekEntries():', this.weekEntries());
+
+      // for month test:
+      await this.timeSheetService.loadByMonth(today);
+      console.log('[cmp] monthEntries():', this.monthEntries());
+
       const range = this.getWeekRangeFor(today);
+
+      console.log('Calculated week range:', range);
 
       this.selectedRange.set(range);
       this.selectedDate.set(today);
+
+    } catch (err) {
+      console.error('Error in ngOnInit:', err);
     } finally {
       this.isLoading.set(false);
     }
   }
+
 
   private getWeekRangeFor(date: Date): DateRange<Date> {
     const day = date.getDay();
@@ -143,29 +160,26 @@ export class TimesheetTable implements OnInit {
     });
   }
 
-  async onDelete(id: number) {
-    if (!id) return;
+  async onDelete(date: string) {
+    if (!date) return;
 
-    const confirmed = confirm('Are you sure you want to delete this entry?');
-
-    if (confirmed) {
-      await this.timesheetService.deleteEntry(id);
-      this.timesheetEntries = this.timesheetService.getEntries()();
-    }
+    this.toastVisible = true;
+    this.toastIdToDelete = date;
   }
 
   toastVisible = false;
-  toastIdToDelete: number | null = null;
+  toastIdToDelete: string | null = null;
 
-  showDeleteToast(id: number) {
+  showDeleteToast(date: string) {
     this.toastVisible = true;
-    this.toastIdToDelete = id;
+    this.toastIdToDelete = date;
   }
 
-  confirmDelete() {
+  async confirmDelete() {
     if (this.toastIdToDelete !== null) {
-      this.timesheetService.deleteEntry(this.toastIdToDelete);
+      await this.timesheetService.deleteEntry(this.toastIdToDelete);
       this.timesheetEntries = this.timesheetService.getEntries()();
+      await this.timesheetService.loadData();
     }
     this.toastVisible = false;
     this.toastIdToDelete = null;
@@ -191,6 +205,35 @@ export class TimesheetTable implements OnInit {
 
 
   selectedDate = signal<Date | null>(null);
+  selectedDate1 = signal<Date | null>(null);
+
+  filteredEntriesByDay = computed(() => {
+    const d = this.selectedDate1();
+    if (!d) return [];            
+    const target = new Date(d); target.setHours(0, 0, 0, 0);
+    return this.entries().filter(e => {
+      const ed = new Date(e.date);
+      ed.setHours(0, 0, 0, 0);
+      return ed.getTime() === target.getTime(); // doar ziua selectată
+    });
+  });
+
+  onDateChange(date: Date | null) {
+    this.selectedDate1.set(date);
+  }
+
+  clearDate() {
+    this.selectedDate1.set(null);
+  }
+
+
+  tableData = computed(() => {
+
+  const byDay = this.filteredEntriesByDay();
+  if (byDay.length) return byDay;
+
+  return this.filteredEntries();
+});
 
   onCalendarDateSelect(date: Date | null) {
     // functie de get pt luna + sapt cu requesturi, tine cont de view
@@ -220,6 +263,12 @@ export class TimesheetTable implements OnInit {
 
     return (time >= startTime && time <= endTime) ? 'selected-range' : '';
   };
+
+  scrollFieldIntoView() {
+  const el = document.getElementById('select-day-field');
+  el?.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' as ScrollBehavior });
+}
+
 
   isWeekend(dateStr: string): boolean {
     const day = new Date(dateStr).getDay();

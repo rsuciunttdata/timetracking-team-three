@@ -17,6 +17,9 @@ export interface TimesheetEntry {
 export class TimeSheetService {
   private entries = signal<TimesheetEntry[]>([]);
 
+  private weekEntries = signal<TimesheetEntry[]>([]);
+  private monthEntries = signal<TimesheetEntry[]>([]);
+
   constructor(
     private http: HttpClient,
     private authService: AuthService
@@ -37,8 +40,67 @@ export class TimeSheetService {
     this.entries.set(result);
   }
 
+  private toIsoLocal(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  async loadByWeek(date: Date): Promise<void> {
+    const userId = this.currentUserId;
+    if (!userId) return;
+
+    const iso = this.toIsoLocal(date);
+    const { from, to } = this.getWeekRange(iso);
+
+    const result = await firstValueFrom(
+      this.http.get<TimesheetEntry[]>(
+        `/api/timesheets?userId=${userId}&from=${from}&to=${to}`
+      )
+    );
+    this.weekEntries.set(result ?? []);
+  }
+
+  getWeekRange(dateStr: string): { from: string, to: string } {
+    const date = new Date(dateStr);
+    const day = date.getDay();
+    const sunday = new Date(date);
+    sunday.setDate(date.getDate() - day);
+
+    const saturday = new Date(sunday);
+    saturday.setDate(sunday.getDate() + 6);
+
+    const toIso = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+    return { from: toIso(sunday), to: toIso(saturday) };
+  }
+
+  async loadByMonth(date: Date): Promise<void> {
+    const userId = this.currentUserId;
+    if (!userId) return;
+
+    const y = date.getFullYear();
+    const m = `${date.getMonth() + 1}`.padStart(2, '0');
+
+    const result = await firstValueFrom(
+      this.http.get<TimesheetEntry[]>(
+        `/api/timesheets?userId=${userId}&month=${y}-${m}`
+      )
+    );
+    this.monthEntries.set(result ?? []);
+  }
+
   getEntries() {
     return this.entries.asReadonly();
+  }
+
+  getWeekEntries() {
+    return this.weekEntries.asReadonly();
+  }
+  getMonthEntries() {
+    return this.monthEntries.asReadonly();
   }
 
   async addEntry(entry: Omit<TimesheetEntry, 'id' | 'userId'>) {
@@ -51,17 +113,17 @@ export class TimeSheetService {
     this.entries.update(e => [...e, result]);
   }
 
-  async updateEntry(id: number, updated: Partial<TimesheetEntry>) {
+    async updateEntry(date: string, updated: Partial<TimesheetEntry>) {
     const result = await firstValueFrom(
-      this.http.put<TimesheetEntry>(`/api/timesheets/${id}`, updated)
+      this.http.patch<TimesheetEntry>(`/api/timesheets/${date}`, updated)
     );
     this.entries.update(list =>
-      list.map(e => (e.id === id ? result : e))
+      list.map(e => (e.date === date ? result : e))
     );
   }
 
-  async deleteEntry(id: number) {
-    await firstValueFrom(this.http.delete(`/api/timesheets/${id}`));
-    this.entries.update(list => list.filter(e => e.id !== id));
+  async deleteEntry(date: string) {
+    await firstValueFrom(this.http.delete(`/api/timesheets/${date}`));
+    this.entries.update(list => list.filter(e => e.date !== date));
   }
 }

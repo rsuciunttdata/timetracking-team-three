@@ -14,8 +14,8 @@ import { TimesheetEntry } from '../services/timesheet.service';
 const USE_MOCK = true;
 const STORAGE_KEY = 'mock-timesheets';
 const MOCK_JSON_PATH = '/timesheet.mock.json';
-const MOCK_USER_ID = '5c421851-df7e-440f-a93e-a4d98576ef7f'; 
-const MOCK_DELAY = 300; 
+const MOCK_USER_ID = '5c421851-df7e-440f-a93e-a4d98576ef7f';
+const MOCK_DELAY = 300;
 
 function getStored(): TimesheetEntry[] {
   try {
@@ -49,7 +49,7 @@ function mergeJsonAndStorage(json: TimesheetEntry[], storage: TimesheetEntry[]):
 @Injectable()
 export class TimesheetInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (!USE_MOCK || !this.isTimesheetRequest(req.url)) {
+    if (!USE_MOCK) {
       return next.handle(req);
     }
 
@@ -74,10 +74,6 @@ export class TimesheetInterceptor implements HttpInterceptor {
     }
   }
 
-  private isTimesheetRequest(url: string): boolean {
-    return url.includes('/api/timesheets');
-  }
-
   private handleMockRequest(req: HttpRequest<any>): Observable<HttpEvent<any>> {
     const method = req.method;
     const url = req.url;
@@ -87,14 +83,41 @@ export class TimesheetInterceptor implements HttpInterceptor {
         return this.handleGet(req);
       case 'POST':
         return this.handlePost(req);
-      case 'PUT':
-        return this.handlePut(req, url);
+      case 'PATCH':
+        return this.handlePatch(req, url);
       case 'DELETE':
         return this.handleDelete(req, url);
       default:
         return throwError(() => new Error(`Unsupported method: ${method}`));
     }
   }
+
+  private getQueryParams(url: string) {
+    const qs = url.split('?')[1] || '';
+    const p = new URLSearchParams(qs);
+    return {
+      userId: p.get('userId'),
+      from: p.get('from'),    
+      to: p.get('to'),   
+      month: p.get('month')  
+    };
+  }
+
+  private applyRangeFiltersString(list: TimesheetEntry[], url: string): TimesheetEntry[] {
+    const { from, to, month } = this.getQueryParams(url);
+
+    if (from && to) {
+      return list.filter(e => e.date >= from && e.date <= to);
+    }
+
+    if (month) {
+      return list.filter(e => e.date.startsWith(month + '-'));
+    }
+
+    return list;
+  }
+
+
 
   private handleGet(req: HttpRequest<any>): Observable<HttpEvent<any>> {
     const userId = this.extractUserIdFromRequest(req);
@@ -114,7 +137,8 @@ export class TimesheetInterceptor implements HttpInterceptor {
           .then((jsonEntries: TimesheetEntry[]) => {
             const merged = mergeJsonAndStorage(jsonEntries, []);
             const userEntries = merged.filter(e => e.userId === userId);
-            return new HttpResponse({ status: 200, body: userEntries });
+            const filtered = this.applyRangeFiltersString(userEntries, req.url);
+            return new HttpResponse({ status: 200, body: filtered });
           })
           .catch(error => {
             console.warn('Could not load mock JSON, using empty array:', error);
@@ -122,22 +146,22 @@ export class TimesheetInterceptor implements HttpInterceptor {
           })
       );
     } else {
-
       const userEntries = entries.filter(e => e.userId === userId);
-      return of(new HttpResponse({ status: 200, body: userEntries }));
+      const filtered = this.applyRangeFiltersString(userEntries, req.url);
+      return of(new HttpResponse({ status: 200, body: filtered }));
     }
   }
 
   private handlePost(req: HttpRequest<any>): Observable<HttpEvent<any>> {
     const requestBody = req.body;
-    
+
     if (!requestBody) {
       return throwError(() => new Error('Request body is required for POST'));
     }
 
     const userId = requestBody.userId ?? MOCK_USER_ID;
     const entries = getStored();
-    
+
     if (!this.isValidTimesheetEntry(requestBody)) {
       return throwError(() => new Error('Invalid timesheet entry data'));
     }
@@ -156,45 +180,46 @@ export class TimesheetInterceptor implements HttpInterceptor {
     return of(new HttpResponse({ status: 201, body: newEntry }));
   }
 
-  private handlePut(req: HttpRequest<any>, url: string): Observable<HttpEvent<any>> {
-    const id = this.extractIdFromUrl(url);
+  private handlePatch(req: HttpRequest<any>, url: string): Observable<HttpEvent<any>> {
+    const date = this.extractDateFromUrl(url);
     const updatedData = req.body;
 
     if (!updatedData) {
-      return throwError(() => new Error('Request body is required for PUT'));
+      return throwError(() => new Error('Request body is required for PATCH'));
     }
 
     const entries = getStored();
-    const entryIndex = entries.findIndex(e => e.id === id);
+    const entryIndex = entries.findIndex(e => e.date === date);
 
     if (entryIndex === -1) {
-      return throwError(() => new Error(`Timesheet entry with ID ${id} not found`));
+      return throwError(() => new Error(`Timesheet entry with date ${date} not found`));
     }
 
     const updatedEntry = { ...entries[entryIndex], ...updatedData };
     entries[entryIndex] = updatedEntry;
     setStored(entries);
 
-    console.log('PUT: Updated entry with ID:', id);
+    console.log('PATCH: Updated entry with date:', date);
     return of(new HttpResponse({ status: 200, body: updatedEntry }));
   }
 
-  private handleDelete(req: HttpRequest<any>, url: string): Observable<HttpEvent<any>> {
-    const id = this.extractIdFromUrl(url);
+ private handleDelete(req: HttpRequest<any>, url: string): Observable<HttpEvent<any>> {
+    const date = this.extractDateFromUrl(url);
     const entries = getStored();
     
     const initialLength = entries.length;
-    const filtered = entries.filter(e => e.id !== id);
+    const filtered = entries.filter(e => e.date !== date);
 
     if (filtered.length === initialLength) {
-      return throwError(() => new Error(`Timesheet entry with ID ${id} not found`));
+      return throwError(() => new Error(`Timesheet entry with date ${date} not found`));
     }
 
     setStored(filtered);
 
-    console.log('DELETE: Removed entry with ID:', id);
+    console.log('DELETE: Removed entry with date:', date);
     return of(new HttpResponse({ status: 204, body: null }));
   }
+
 
   private extractUserIdFromRequest(req: HttpRequest<any>): string {
     const urlParts = req.url.split('?');
@@ -211,21 +236,14 @@ export class TimesheetInterceptor implements HttpInterceptor {
       return userIdParam;
     }
 
-   
+
     return MOCK_USER_ID;
   }
 
-  private extractIdFromUrl(url: string): number {
-    const parts = url.split('/');
-    const idPart = parts[parts.length - 1].split('?')[0];
-    const id = parseInt(idPart, 10);
-    
-    if (isNaN(id)) {
-      throw new Error(`Invalid ID in URL: ${url}`);
-    }
-    
-    return id;
-  }
+  private extractDateFromUrl(url: string): string {
+  const parts = url.split('/');
+  return parts[parts.length - 1].split('?')[0]; 
+}
 
   private generateId(): number {
     return Date.now() + Math.floor(Math.random() * 1000);
